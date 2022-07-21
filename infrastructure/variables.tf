@@ -1,5 +1,5 @@
 locals {
-  prefix      = "${terraform.workspace}-${var.application}-"
+  prefix      = "${var.application}-"
   environment = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
   aws_account = lookup(var.aws_accounts, local.environment)
   domain      = lookup(var.domains, local.environment)

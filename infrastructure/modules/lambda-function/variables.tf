@@ -12,10 +12,6 @@ variable "aws_account" {
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
-variable "prefix" {
-  type = string
-}
-
 variable "name" {
   type = string
 }
@@ -36,7 +32,7 @@ variable "source_bucket" {
 
 variable "source_key" {
   type        = string
-  description = "Path of the file within specific S3 bucket, defaults to `{prefix}-{name}.zip`"
+  description = "Path of the file within specific S3 bucket, defaults to `{name}.zip`"
   default     = null
   nullable    = true
 }

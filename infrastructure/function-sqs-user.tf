@@ -7,8 +7,8 @@ module "lambda_sqs_user_update" {
   aws_account = local.aws_account
   aws_region  = var.aws_region
 
-  prefix        = local.prefix
-  name          = "sqs-user-update"
+  name          = "${local.prefix}sqs-user-update"
+  source_key    = "sqs-user-update.zip"
   source_bucket = aws_s3_bucket.functions.id
 
   environment_variables = merge(local.envvar_default, {

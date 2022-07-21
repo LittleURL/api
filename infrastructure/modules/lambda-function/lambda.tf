@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "default" {
-  function_name = "${var.prefix}${var.name}"
+  function_name = var.name
   role          = aws_iam_role.lambda_execution.arn
 
   # handler
@@ -18,7 +18,7 @@ resource "aws_lambda_function" "default" {
 }
 
 resource "aws_iam_role" "lambda_execution" {
-  name               = "${var.prefix}${var.name}"
+  name               = var.name
   path               = var.role_path
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
 }
