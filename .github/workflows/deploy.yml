@@ -91,6 +91,8 @@ jobs:
         env:
           source: s3://$STATEBUCKET/dev/$PROJECT/${{ github.event.number }}.tfplan
           destination: ./dev.tfplan
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # Apply plan
       - name: Apply plan
@@ -102,10 +104,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     needs: [build]
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Download artifacts
@@ -119,6 +117,8 @@ jobs:
         env:
           source: build/functions/
           destination: s3://${{ secrets.FUNCTIONS_BUCKET }}/
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
   prod-terraform:
@@ -167,6 +167,8 @@ jobs:
         env:
           source: s3://$STATEBUCKET/prod/$PROJECT/${{ github.event.number }}.tfplan
           destination: ./prod.tfplan
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # Apply plan
       - name: Apply Plan
@@ -177,10 +179,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     needs: [build, dev-functions]
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Download artifacts
@@ -194,3 +192,5 @@ jobs:
         env:
           source: build/functions/
           destination: s3://${{ secrets.FUNCTIONS_BUCKET }}/
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
