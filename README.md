@@ -1,3 +1,6 @@
+[![CodeQL](https://github.com/DeltaByte/littleurl-api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/DeltaByte/littleurl-api/actions/workflows/codeql-analysis.yml)
+[![Deploy](https://github.com/DeltaByte/littleurl-api/actions/workflows/deploy.yml/badge.svg?event=deployment)](https://github.com/DeltaByte/littleurl-api/actions/workflows/deploy.yml)
+
 # LittleURL API
 
 This is the API that powers LittleURL backend functionality. While you are free to host it yourself, please keep in mind a few caveats;
