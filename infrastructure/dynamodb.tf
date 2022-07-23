@@ -8,7 +8,5 @@ resource "aws_dynamodb_table" "domains" {
     name = "id"
     type = "S"
   }
-
-  stream_enabled = true
 }
 

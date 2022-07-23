@@ -1,12 +1,12 @@
 terraform {
-  # backend "s3" {
-  #   key                  = "auth.tfstate"
-  #   workspace_key_prefix = "state"
-  #   region               = "us-east-1"
-  #   dynamodb_table       = "littleurl-terraform-lock"
-  #   bucket               = "littleurl-terraform-state"
-  #   encrypt              = true
-  # }
+  backend "s3" {
+    key                  = "api.tfstate"
+    workspace_key_prefix = "state"
+    region               = "us-east-1"
+    dynamodb_table       = "littleurl-terraform-lock"
+    bucket               = "littleurl-terraform-state"
+    encrypt              = true
+  }
 
   required_providers {
     aws = {

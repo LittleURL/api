@@ -54,10 +54,12 @@ tf-init: ## Initialise terraform
 
 tf-plan: ## Plan terraform changeset
 	@echo "Creating terraform plan"
+	$(TF) workspace select ${ENVIRONMENT}
 	$(TF) plan -input=false -out=./${PROJECT}.tfplan
 
 tf-apply: ## Apply terraform changeset
 	@echo "Applying terraform plan"
+	$(TF) workspace select ${ENVIRONMENT}
 	$(TF) apply -input=false -auto-approve ./${PROJECT}.tfplan
 
 ##@ Helpers
