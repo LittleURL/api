@@ -7,6 +7,10 @@ terraform {
     bucket               = "littleurl-terraform-state"
     encrypt              = true
     role_arn             = "arn:aws:iam::000000000000:role/LittleurlTerraformRemotestateDev"
+    assume_role_tags = {
+      application = "littleurl"
+      service     = "api"
+    }
   }
 
   required_providers {
