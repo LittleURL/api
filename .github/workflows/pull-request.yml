@@ -1,0 +1,181 @@
+name: 'Pull Request'
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  PROJECT: api
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+jobs:
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '^1.17.7'
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Lint code
+        run: |
+          go fmt $(go list ./... | grep -v /vendor/)
+          go vet $(go list ./... | grep -v /vendor/)
+
+  dev:
+    name: 'Dev'
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment: dev
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: terraform/
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.5
+
+      # Initialize terraform and select workspace.
+      - name: Init Terraform
+        run: |
+          terraform init
+          terraform workspace select dev
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Lint terraform
+        run: terraform fmt -check
+
+      # Generates an execution plan for Terraform
+      - name: Plan
+        run: terraform plan -out=plan.tfplan
+
+      - uses: actions/github-script@0.9.0
+        env:
+          PLAN: "terraform\n${{ steps.Plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`${process.env.PLAN}\`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+              
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      
+      - name: Upload plan
+        uses: keithweaver/aws-s3-github-action@master
+        env:
+          source: ./plan.tfplan
+          destination: s3://littleurl-terraform-state/plan/dev/$PROJECT/${{ github.event.number }}.tfplan
+
+  prod:
+    name: 'Prod'
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment: prod
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: terraform/
+
+    # Checkout the repository to the GitHub Actions runner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Initialize terraform and select workspace.
+      - name: Init Terraform
+        run: |
+          terraform init
+          terraform workspace select prod
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Lint terraform
+        run: terraform fmt -check
+
+      # Generates an execution plan for Terraform
+      - name: Plan
+        run: terraform plan -out=plan.tfplan
+
+      - uses: actions/github-script@0.9.0
+        env:
+          PLAN: "terraform\n${{ steps.Plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`${process.env.PLAN}\`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+              
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      
+      - name: Upload plan
+        uses: keithweaver/aws-s3-github-action@master
+        env:
+          source: ./plan.tfplan
+          destination: s3://littleurl-terraform-state/plan/prod/$PROJECT/${{ github.event.number }}.tfplan
