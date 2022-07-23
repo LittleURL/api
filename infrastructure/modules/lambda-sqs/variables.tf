@@ -3,9 +3,9 @@ variable "function_name" {
   description = "Name of target function"
 }
 
-variable "function_role_arn" {
+variable "function_role_name" {
   type        = string
-  description = "ARN of target function's execution role"
+  description = "Name of target function's execution role"
 }
 
 variable "queue_arn" {

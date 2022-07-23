@@ -14,7 +14,7 @@ locals {
 # Function deployment package storage
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_s3_bucket" "functions" {
-  bucket_prefix = "${local.prefix}function-deployment"
+  bucket_prefix = "${local.prefix}function-deployment-"
 
   tags = {
     internal = true

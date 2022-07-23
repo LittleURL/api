@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "lumigo_integration_assume" {
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role_policy" "lumigo_integration" {
   name   = "LumigoIntegration"
-  role   = aws_iam_role.lumigo_integration.arn
+  role   = aws_iam_role.lumigo_integration.id
   policy = data.aws_iam_policy_document.lumigo_integration.json
 }
 

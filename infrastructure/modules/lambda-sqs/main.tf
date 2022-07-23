@@ -8,7 +8,7 @@ resource "aws_lambda_event_source_mapping" "sqs" {
 
 resource "aws_iam_role_policy" "sqs_event_source" {
   name   = "SQSEventSource"
-  role   = var.function_role_arn
+  role   = var.function_role_name
   policy = data.aws_iam_policy_document.sqs_event_source.json
 }
 

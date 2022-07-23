@@ -21,8 +21,8 @@ module "lambda_sqs_user_update" {
 module "lambda_sqs_user_update_event_source" {
   source = "./modules/lambda-sqs"
 
-  function_name     = module.lambda_sqs_user_update.function_name
-  function_role_arn = module.lambda_sqs_user_update.role_arn
-  queue_arn         = aws_sqs_queue.user_update.arn
-  batch_size        = 1
+  function_name      = module.lambda_sqs_user_update.function_name
+  function_role_name = module.lambda_sqs_user_update.role_id
+  queue_arn          = aws_sqs_queue.user_update.arn
+  batch_size         = 1
 }

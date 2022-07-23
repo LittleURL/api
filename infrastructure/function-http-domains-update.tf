@@ -33,7 +33,7 @@ module "gateway_lambda_http_domains_update" {
 # ----------------------------------------------------------------------------------------------------------------------
 module "lambda_http_domains_update_dynamodb" {
   source = "./modules/iam-dynamodb"
-  role   = module.lambda_http_domains_update.role_arn
+  role   = module.lambda_http_domains_update.role_id
   table  = aws_dynamodb_table.domains.arn
 
   enable_write = true
