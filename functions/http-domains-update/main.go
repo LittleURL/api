@@ -7,9 +7,9 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/deltabyte/littleurl-api/internal/config"
 	"github.com/deltabyte/littleurl-api/internal/helpers"
 	"github.com/deltabyte/littleurl-api/internal/permissions"
@@ -17,7 +17,7 @@ import (
 )
 
 type UpdateDomainRequest struct {
-	Description *string `json:"description"`
+	Description *string `json:"description" validate:"max=255"`
 }
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
@@ -29,11 +29,12 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(400, "Missing `domainId` path parameter"), nil
 	}
 
-	// check allowed domains
+	// check permissions
 	claims := event.RequestContext.Authorizer.JWT.Claims
+	userId, userIdExists := claims["sub"]
 	roles := permissions.ParseClaims(claims)
-	domainRole, exists := roles[domainId]
-	if !exists || !domainRole.DomainWrite(domainId) {
+	domainRole, roleExists := roles[domainId]
+	if !userIdExists || !roleExists || !domainRole.DomainWrite(domainId) {
 		return helpers.GatewayErrorResponse(403, ""), nil
 	}
 
@@ -43,7 +44,10 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(500, "Failed to unmarshal body"), err
 	}
 
-	// TODO: validate body
+	// validate request body
+	if err := helpers.ValidateRequest(reqBody); err != nil {
+		return helpers.GatewayValidationResponse(err), nil
+	}
 
 	// init AWS SDK
 	awsCfg, err := awsConfig.LoadDefaultConfig(ctx)
@@ -53,6 +57,9 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 
 	// build expression
 	builder := expression.NewBuilder()
+	builder = helpers.ChangeTrackingExpression(builder, userId)
+
+	// update description
 	if reqBody.Description != nil {
 		builder = builder.WithUpdate(expression.Set(
 			expression.Name("description"),
