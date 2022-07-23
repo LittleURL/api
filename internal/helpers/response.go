@@ -20,7 +20,7 @@ func GatewayErrorResponse(code int, message string) *events.APIGatewayV2HTTPResp
 
 	bodyBytes, _ := json.Marshal(ErrorResponseBody{
 		StatusCode: code,
-		Message: message,
+		Message:    message,
 	})
 
 	return &events.APIGatewayV2HTTPResponse{

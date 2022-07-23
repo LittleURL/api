@@ -4,7 +4,7 @@ import "github.com/deltabyte/littleurl-api/internal/entities"
 
 const Nobody = "nobody"
 
-type NobodyRole struct{
+type NobodyRole struct {
 	DomainID entities.DomainID
 }
 

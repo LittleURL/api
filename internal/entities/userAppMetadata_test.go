@@ -13,7 +13,7 @@ func TestMarshalJSON(t *testing.T) {
 	domainValue := "bazqux"
 	appMeta := AppMetadata{
 		Domains: map[string]*string{
-			"foobar": &domainValue,
+			"foobar":        &domainValue,
 			"removedDomain": nil,
 		},
 	}
@@ -39,7 +39,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	domainValue := "bazqux"
 	exampleAppMeta := &AppMetadata{
 		Domains: map[string]*string{
-			"foobar": &domainValue,
+			"foobar":        &domainValue,
 			"removedDomain": nil,
 		},
 	}
