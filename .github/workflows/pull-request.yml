@@ -63,7 +63,7 @@ jobs:
       # Initialize terraform and select workspace.
       - name: Init Terraform
         run: |
-          terraform init
+          terraform init -backend-config "role_arn=${{ secrets.TF_BACKEND_ROLE_ARN }}"
           terraform workspace select dev
 
       # Checks that all Terraform configuration files adhere to a canonical format
@@ -138,7 +138,7 @@ jobs:
       # Initialize terraform and select workspace.
       - name: Init Terraform
         run: |
-          terraform init
+          terraform init -backend-config "role_arn=${{ secrets.TF_BACKEND_ROLE_ARN }}"
           terraform workspace select prod
 
       # Checks that all Terraform configuration files adhere to a canonical format

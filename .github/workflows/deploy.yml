@@ -83,7 +83,7 @@ jobs:
       # Initialize terraform and select workspace.
       - name: Init Terraform
         run: |
-          terraform init
+          terraform init -backend-config "role_arn=${{ secrets.TF_BACKEND_ROLE_ARN }}"
           terraform workspace select dev
 
       # Auto apply
@@ -160,7 +160,7 @@ jobs:
       # Initialize terraform and select workspace.
       - name: Init Terraform
         run: |
-          terraform init -backend-config "bucket=mediacodex-prod-terraform-state" -backend-config "dynamodb_table=prod-terraform-lock"
+          terraform init -backend-config "role_arn=${{ secrets.TF_BACKEND_ROLE_ARN }}"
           terraform workspace select prod
 
       # Download plan

@@ -6,6 +6,7 @@ terraform {
     dynamodb_table       = "littleurl-terraform-lock"
     bucket               = "littleurl-terraform-state"
     encrypt              = true
+    role_arn             = "arn:aws:iam::000000000000:role/LittleurlTerraformRemotestateDev"
   }
 
   required_providers {
