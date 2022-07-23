@@ -8,7 +8,7 @@ import (
 
 type AppMetadata struct {
 	// uses a pointer so that the value is nullable, because auth0 uses null to remove a key
-	Domains map[string]*string `json:"domains,omitempty"`
+	Domains map[DomainID]*string `json:"domains,omitempty"`
 }
 
 // from { domains: { foo: "bar" } }
@@ -29,8 +29,8 @@ func (appMeta AppMetadata) MarshalJSON() ([]byte, error) {
 	return attrJson, nil
 }
 
-// from   { domain_foo: "bar" }
-// to { domains: { foo: "bar" } }
+// from { domain_foo: "bar" }
+// to   { domains: { foo: "bar" } }
 func (appMeta *AppMetadata) UnmarshalJSON(b []byte) error {
 	attr := make(map[string]*string)
 	if err := json.Unmarshal(b, &attr); err != nil {

@@ -12,8 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type UserID = string
+
 type User struct {
-	Id          string      `required:"true" json:"user_id"`
+	Id          UserID      `required:"true" json:"user_id"`
 	AppMetadata AppMetadata `json:"app_metadata,omitempty"`
 }
 
