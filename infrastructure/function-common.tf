@@ -43,3 +43,30 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "functions" {
     }
   }
 }
+
+# ----------------------------------------------------------------------------------------------------------------------
+# CI Permisson
+# ----------------------------------------------------------------------------------------------------------------------
+resource "aws_iam_user_policy" "function_upload" {
+  name   = "UploadLambdaFunctions"
+  user   = "deploy-api"
+  policy = data.aws_iam_policy_document.function_upload.json
+}
+
+data "aws_iam_policy_document" "function_upload" {
+  statement {
+    sid = "UploadToS3"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:AbortMultipartUpload",
+      "s3:ListBucket",
+      "s3:GetObjectVersion",
+      "s3:ListMultipartUploadParts"
+    ]
+    resources = [
+      aws_s3_bucket.functions.arn,
+      "${aws_s3_bucket.functions.arn}/*"
+    ]
+  }
+}
