@@ -15,11 +15,11 @@ import (
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 )
 
-func Handler(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	cfg := config.Load()
 
 	// check allowed domains
-	claims := request.RequestContext.Authorizer.JWT.Claims
+	claims := event.RequestContext.Authorizer.JWT.Claims
 	domainKeys := []map[string]types.AttributeValue{}
 	for k := range claims {
 		if strings.HasPrefix(k, "domain_") {

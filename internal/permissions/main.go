@@ -11,7 +11,7 @@ type Role interface {
 	DomainWrite(entities.DomainID) bool
 }
 
-func ParseScopes(claims map[string]string) *map[entities.DomainID]Role {
+func ParseClaims(claims map[string]string) map[entities.DomainID]Role {
 	roles := map[entities.DomainID]Role{}
 
 	for key, value := range claims {
@@ -36,5 +36,5 @@ func ParseScopes(claims map[string]string) *map[entities.DomainID]Role {
 		}
 	}
 
-	return &roles
+	return roles
 }
