@@ -7,6 +7,7 @@ on:
 
 env:
   PROJECT: api
+  STATEBUCKET: littleurl-terraform-state
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
 jobs:
@@ -100,10 +101,10 @@ jobs:
             })
       
       - name: Upload plan
-        uses: keithweaver/aws-s3-github-action@master
+        uses: keithweaver/aws-s3-github-action@v1.0.0
         env:
           source: ./plan.tfplan
-          destination: s3://littleurl-terraform-state/plan/dev/$PROJECT/${{ github.event.number }}.tfplan
+          destination: s3://$STATEBUCKET/plan/dev/$PROJECT/${{ github.event.number }}.tfplan
 
   prod:
     name: 'Prod'
@@ -175,7 +176,7 @@ jobs:
             })
       
       - name: Upload plan
-        uses: keithweaver/aws-s3-github-action@master
+        uses: keithweaver/aws-s3-github-action@v1.0.0
         env:
           source: ./plan.tfplan
-          destination: s3://littleurl-terraform-state/plan/prod/$PROJECT/${{ github.event.number }}.tfplan
+          destination: s3://$STATEBUCKET/plan/prod/$PROJECT/${{ github.event.number }}.tfplan

@@ -1,0 +1,187 @@
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+env:
+  PROJECT: api
+  STATEBUCKET: littleurl-terraform-state
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "^1.17.7"
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Build functions
+        run: make build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/
+          retention-days: 5
+
+  dev:
+    name: "Deploy Dev"
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: [build]
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    # Use the Bash shell and set working dir
+    defaults:
+      run:
+        shell: bash
+        working-directory: terraform/
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Download build artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: /build/
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v
+        with:
+          terraform_version: 1.1.5
+
+      # Initialize terraform and select workspace.
+      - name: Init Terraform
+        run: |
+          terraform init
+          terraform workspace select dev
+
+      # Auto apply
+      - name: Auto apply
+        if: ${{ github.event_name == 'push' }}
+        run: terraform apply -auto-approve
+
+      # Download plan
+      - name: Download plan
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == 'true' }}
+        env:
+          source: s3://$STATEBUCKET/dev/$PROJECT/${{ github.event.number }}.tfplan
+          destination: ./dev.tfplan
+
+      # Apply plan
+      - name: Apply plan
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == 'true' }}
+        run: terraform apply -auto-approve dev.tfplan
+
+      # get TF outputs
+      - name: Get functions bucket name
+        id: tfout
+        run: terraform output -raw functions_bucket
+
+      # Upload lambda function zips to S3
+      - name: Upload functions
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        env:
+          source: /build/functions/
+          destination: s3://${{ steps.tfout.outputs.stdout }}/
+
+  prod:
+    name: "Deploy Prod"
+    runs-on: ubuntu-latest
+    environment: prod
+
+    # enforce dev-first and PR only deployments
+    needs: [build, dev]
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == 'true' }}
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    # Use the Bash shell and set working dir
+    defaults:
+      run:
+        shell: bash
+        working-directory: terraform/
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Download build artifacts
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: /build/
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.5
+
+      # Initialize terraform and select workspace.
+      - name: Init Terraform
+        run: |
+          terraform init -backend-config "bucket=mediacodex-prod-terraform-state" -backend-config "dynamodb_table=prod-terraform-lock"
+          terraform workspace select prod
+
+      # Download plan
+      - name: Download plan
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        env:
+          source: s3://$STATEBUCKET/prod/$PROJECT/${{ github.event.number }}.tfplan
+          destination: ./prod.tfplan
+
+      # Apply plan
+      - name: Apply Plan
+        run: terraform apply -auto-approve prod.tfplan
+
+      # get TF outputs
+      - name: Get functions bucket name
+        id: tfout
+        run: terraform output -raw functions_bucket
+
+      # Upload lambda function zips to S3
+      - name: Upload functions
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        env:
+          source: /build/functions/
+          destination: s3://${{ steps.tfout.outputs.stdout }}/
