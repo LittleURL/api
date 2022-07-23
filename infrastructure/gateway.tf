@@ -1,8 +1,26 @@
+locals {
+  zone_id    = data.cloudflare_zone.default.id
+  domain     = data.cloudflare_zone.default.name
+  domain_api = "api.${local.domain}"
+}
+
+data "aws_ssm_parameter" "cloudflare_zone" {
+  name = "/${var.application}/cloudflare-zone"
+}
+
+data "cloudflare_zone" "default" {
+  zone_id = data.aws_ssm_parameter.cloudflare_zone.value
+}
+
+data "aws_ssm_parameter" "api_origin_cert" {
+  name = "/${var.application}/api-certificate-arn"
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Gateway
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_apigatewayv2_api" "api" {
-  name          = "public-companies"
+  name          = "${local.prefix}api"
   protocol_type = "HTTP"
 
   disable_execute_api_endpoint = true
@@ -39,53 +57,25 @@ resource "aws_apigatewayv2_domain_name" "api" {
   domain_name = local.domain_api
 
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.api.arn
+    certificate_arn = data.aws_ssm_parameter.api_origin_cert.value
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
 }
 
+resource "aws_apigatewayv2_api_mapping" "api" {
+  api_id          = aws_apigatewayv2_api.api.id
+  domain_name     = aws_apigatewayv2_domain_name.api.id
+  stage           = aws_apigatewayv2_stage.v1.id
+  api_mapping_key = "v1"
+}
+
 resource "cloudflare_record" "api" {
-  zone_id = cloudflare_zone.main.id
+  zone_id = local.zone_id
   name    = "api"
   type    = "CNAME"
   value   = aws_apigatewayv2_domain_name.api.domain_name_configuration.0.target_domain_name
   proxied = true
-}
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Origin Cert
-# ----------------------------------------------------------------------------------------------------------------------
-resource "tls_private_key" "api" {
-  algorithm = "RSA"
-}
-
-resource "tls_cert_request" "api" {
-  private_key_pem = tls_private_key.api.private_key_pem
-
-  dns_names = [local.domain_api]
-
-  subject {
-    common_name  = local.domain_api
-    organization = "LittleURL"
-  }
-}
-
-resource "cloudflare_origin_ca_certificate" "api" {
-  csr                = tls_cert_request.api.cert_request_pem
-  hostnames          = [local.domain_api]
-  request_type       = "origin-rsa"
-  requested_validity = 5475 // (15yrs) Cloudflare default
-}
-
-data "http" "cloudflare_origin_root_ca" {
-  url = "https://developers.cloudflare.com/ssl/static/origin_ca_rsa_root.pem"
-}
-
-resource "aws_acm_certificate" "api" {
-  private_key       = tls_private_key.api.private_key_pem
-  certificate_body  = cloudflare_origin_ca_certificate.api.certificate
-  certificate_chain = data.http.cloudflare_origin_root_ca.response_body
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

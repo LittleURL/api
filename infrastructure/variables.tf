@@ -2,8 +2,6 @@ locals {
   prefix      = "${var.application}-"
   environment = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
   aws_account = lookup(var.aws_accounts, local.environment)
-  domain      = lookup(var.domains, local.environment)
-  domain_api  = "api.${local.domain}"
 }
 
 variable "application" {
@@ -15,14 +13,6 @@ variable "application" {
 variable "environments" {
   type    = set(string)
   default = ["dev", "prod"]
-}
-
-variable "domains" {
-  type = map(string)
-  default = {
-    dev  = "littleurl.dev"
-    prod = "littleurl.io"
-  }
 }
 
 variable "auth0_domain" {
@@ -47,7 +37,7 @@ variable "aws_region" {
 
 variable "aws_role" {
   type    = string
-  default = "deploy-littleurl"
+  default = "deploy-api"
 }
 
 variable "aws_accounts" {
@@ -73,7 +63,7 @@ variable "cors_origins" {
   type = map(list(string))
   default = {
     dev  = ["*"]
-    prod = ["https://mediacodex.net"]
+    prod = ["https://littleurl.io"]
   }
 }
 
