@@ -60,7 +60,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform/
+        working-directory: infrastructure/
 
     steps:
       # Checkout the repository
@@ -137,7 +137,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform/
+        working-directory: infrastructure/
 
     steps:
       # Checkout the repository

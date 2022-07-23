@@ -48,7 +48,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform/
+        working-directory: infrastructure/
 
     steps:
       - name: Checkout
@@ -124,7 +124,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: terraform/
+        working-directory: infrastructure/
 
     # Checkout the repository to the GitHub Actions runner
     steps:
