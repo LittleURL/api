@@ -7,8 +7,8 @@ import (
 )
 
 type Role interface {
-	DomainRead() bool
-	DomainWrite() bool
+	DomainRead(entities.DomainID) bool
+	DomainWrite(entities.DomainID) bool
 }
 
 func ParseScopes(claims map[string]string) *map[entities.DomainID]Role {
@@ -19,20 +19,20 @@ func ParseScopes(claims map[string]string) *map[entities.DomainID]Role {
 		if !strings.HasPrefix(key, "domain_") {
 			continue
 		}
-		
+
 		domain := strings.Replace(key, "_domain", "", 1)
 		switch value {
 		case Admin:
-			roles[domain] = &AdminRole{}
+			roles[domain] = &AdminRole{DomainID: domain}
 
 		case Editor:
-			roles[domain] = &EditorRole{}
+			roles[domain] = &EditorRole{DomainID: domain}
 
 		case Viewer:
-			roles[domain] = &ViewerRole{}
-		
+			roles[domain] = &ViewerRole{DomainID: domain}
+
 		default:
-			roles[domain] = &NobodyRole{}
+			roles[domain] = &NobodyRole{DomainID: domain}
 		}
 	}
 
