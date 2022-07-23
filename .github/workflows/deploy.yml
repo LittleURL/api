@@ -180,6 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     needs: [build, dev-functions]
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == 'true' }}
 
     steps:
       - name: Download artifacts
