@@ -72,7 +72,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: /build/
+          path: ~/build/
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
@@ -113,7 +113,7 @@ jobs:
       - name: Upload functions
         uses: keithweaver/aws-s3-github-action@v1.0.0
         env:
-          source: /build/functions/
+          source: ~/build/functions/
           destination: s3://${{ steps.tfout.outputs.stdout }}/
 
   prod:
@@ -149,7 +149,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: /build/
+          path: ~/build/
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
@@ -183,5 +183,5 @@ jobs:
       - name: Upload functions
         uses: keithweaver/aws-s3-github-action@v1.0.0
         env:
-          source: /build/functions/
+          source: ~/build/functions/
           destination: s3://${{ steps.tfout.outputs.stdout }}/
