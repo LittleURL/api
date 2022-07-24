@@ -5,9 +5,7 @@ locals {
   envvar_tables = {
     "TABLES_DOMAINS" = aws_dynamodb_table.domains.id
   }
-  envvar_default = merge(local.envvar_queues, local.envvar_tables, {
-    "LUMIGO_USE_TRACER_EXTENSION" = var.lumigo_token == "" ? false : true
-  })
+  envvar_default = merge(local.envvar_queues, local.envvar_tables, local.envvar_lumigo)
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
