@@ -2,6 +2,7 @@
 # Role
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role" "lumigo_integration" {
+  name               = "LumigoIntegration"
   assume_role_policy = data.aws_iam_policy_document.lumigo_integration_assume.json
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/ReadOnlyAccess",
