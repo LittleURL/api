@@ -105,6 +105,10 @@ jobs:
     environment: dev
     needs: [build]
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -113,13 +117,11 @@ jobs:
           path: build/
 
       - name: Upload functions
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          source: build/functions
-          destination: s3://${{ secrets.FUNCTIONS_BUCKET }}/
-          flags: --recursive
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd build/functions && for i in *; do \
+            aws s3 cp $i s3://${{ secrets.FUNCTIONS_BUCKET }}/$i && \
+            aws lambda update-function-code --function-name littleurl-${i:0:-4} \
+          ; done
 
 
   prod-terraform:
@@ -182,6 +184,10 @@ jobs:
     needs: [build, dev-functions]
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == 'true' }}
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -190,10 +196,8 @@ jobs:
           path: build/
 
       - name: Upload functions
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          source: build/functions
-          destination: s3://${{ secrets.FUNCTIONS_BUCKET }}/
-          flags: --recursive
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd build/functions && for i in *; do \
+            aws s3 cp $i s3://${{ secrets.FUNCTIONS_BUCKET }}/$i && \
+            aws lambda update-function-code --function-name littleurl-${i:0:-4} \
+          ; done

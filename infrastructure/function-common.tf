@@ -48,7 +48,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "functions" {
 # CI Permisson
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_user_policy" "function_upload" {
-  name   = "UploadLambdaFunctions"
+  name   = "DeployLambdaFunctions"
   user   = "deploy-api"
   policy = data.aws_iam_policy_document.function_upload.json
 }
@@ -67,6 +67,16 @@ data "aws_iam_policy_document" "function_upload" {
     resources = [
       aws_s3_bucket.functions.arn,
       "${aws_s3_bucket.functions.arn}/*"
+    ]
+  }
+
+  statement {
+    sid = "UpdateLambdaFunction"
+    actions = [
+      "lambda:UpdateFunctionCode"
+    ]
+    resources = [
+      "arn:aws:lambda:${var.aws_region}:${local.aws_account}:function:${local.prefix}*"
     ]
   }
 }
