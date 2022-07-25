@@ -121,7 +121,7 @@ jobs:
         run: |
           cd build/functions && for i in *; do \
             aws s3 cp $i s3://${{ secrets.FUNCTIONS_BUCKET }}/$i && \
-            aws lambda update-function-code --function-name littleurl-${i:0:-4} --s3-bucket ${{ secrets.FUNCTIONS_BUCKET }} --s3-key $i \
+            aws lambda update-function-code --function-name littleurl-${i:0:-4} --s3-bucket ${{ secrets.FUNCTIONS_BUCKET }} --s3-key $i &> /dev/null \
           ; done
 
 
