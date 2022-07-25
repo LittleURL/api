@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/auth0/go-auth0 v0.9.2
 	github.com/aws/aws-lambda-go v1.33.0
-	github.com/aws/aws-sdk-go v1.44.60
+	github.com/aws/aws-sdk-go v1.44.61
 	github.com/aws/aws-sdk-go-v2/config v1.15.14
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.9.7
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.4.13
