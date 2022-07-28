@@ -25,7 +25,7 @@ module "gateway_lambda_http_domains_list" {
   gateway_id            = aws_apigatewayv2_api.api.id
   gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
 
-  authorizer_id = aws_apigatewayv2_authorizer.auth0.id
+  authorizer_id = aws_apigatewayv2_authorizer.cognito.id
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

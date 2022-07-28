@@ -17,7 +17,7 @@ module "lambda_http_domains_update" {
 module "gateway_lambda_http_domains_update" {
   source = "./modules/lambda-gateway"
   method = "PATCH"
-  path   = "/companies/{domainId}"
+  path   = "/domains/{domainId}"
 
   function_name       = module.lambda_http_domains_update.function_name
   function_invoke_arn = module.lambda_http_domains_update.function_invoke_arn
@@ -25,7 +25,7 @@ module "gateway_lambda_http_domains_update" {
   gateway_id            = aws_apigatewayv2_api.api.id
   gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
 
-  authorizer_id = aws_apigatewayv2_authorizer.auth0.id
+  authorizer_id = aws_apigatewayv2_authorizer.cognito.id
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

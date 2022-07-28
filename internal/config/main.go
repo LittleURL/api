@@ -19,12 +19,11 @@ type auth0Config struct {
 	ClientSecret string
 }
 
-type queues struct {
-	UserUpdate string
-}
+type queues struct{}
 
 type tables struct {
-	Domains string
+	Domains     string
+	DomainUsers string
 }
 
 func Load() *Config {

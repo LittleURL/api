@@ -2,6 +2,8 @@ locals {
   prefix      = "${var.application}-"
   environment = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
   aws_account = lookup(var.aws_accounts, local.environment)
+  zone_id    = data.cloudflare_zone.default.id
+  domain     = data.cloudflare_zone.default.name
 }
 
 variable "application" {
@@ -13,12 +15,6 @@ variable "application" {
 variable "environments" {
   type    = set(string)
   default = ["dev", "prod"]
-}
-
-variable "auth0_domain" {
-  type        = string
-  description = "Auth0 managament API domain"
-  default     = "littleurl-dev.us.auth0.com"
 }
 
 variable "lumigo_token" {

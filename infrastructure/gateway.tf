@@ -1,6 +1,4 @@
 locals {
-  zone_id    = data.cloudflare_zone.default.id
-  domain     = data.cloudflare_zone.default.name
   domain_api = "api.${local.domain}"
 }
 
@@ -81,14 +79,17 @@ resource "cloudflare_record" "api" {
 # ----------------------------------------------------------------------------------------------------------------------
 # Authorizer
 # ----------------------------------------------------------------------------------------------------------------------
-resource "aws_apigatewayv2_authorizer" "auth0" {
-  api_id           = aws_apigatewayv2_api.api.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  name             = "auth0"
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id          = aws_apigatewayv2_api.api.id
+  name            = "cognito"
+  authorizer_type = "JWT"
+
+  identity_sources = [
+    "$request.header.Authorization"
+  ]
 
   jwt_configuration {
-    issuer   = "https://${var.auth0_domain}"
+    issuer   = "https://${aws_cognito_user_pool.main.endpoint}"
     audience = [local.domain_api]
   }
 }

@@ -1,11 +1,9 @@
 locals {
-  envvar_queues = {
-    "QUEUES_USERUPDATE" = aws_sqs_queue.user_update.name
-  }
   envvar_tables = {
-    "TABLES_DOMAINS" = aws_dynamodb_table.domains.id
+    "TABLES_DOMAINS"      = aws_dynamodb_table.domains.id
+    "TABLES_DOMAIN_USERS" = aws_dynamodb_table.domain_users.id
   }
-  envvar_default = merge(local.envvar_queues, local.envvar_tables, local.envvar_lumigo)
+  envvar_default = merge(local.envvar_tables, local.envvar_lumigo)
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
