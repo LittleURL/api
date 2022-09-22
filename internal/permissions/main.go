@@ -3,7 +3,7 @@ package permissions
 import (
 	"strings"
 
-	"github.com/deltabyte/littleurl-api/internal/entities"
+	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 )
 
 type Role interface {

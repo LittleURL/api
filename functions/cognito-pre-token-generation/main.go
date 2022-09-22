@@ -11,9 +11,9 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/deltabyte/littleurl-api/internal/config"
-	"github.com/deltabyte/littleurl-api/internal/entities"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
+	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 )
 
 func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGenRequest) (*events.CognitoEventUserPoolsPreTokenGenResponse, error) {

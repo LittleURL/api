@@ -1,6 +1,6 @@
 package permissions
 
-import "github.com/deltabyte/littleurl-api/internal/entities"
+import "gitlab.com/deltabyte_/littleurl/api/internal/entities"
 
 const Nobody = "nobody"
 

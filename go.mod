@@ -1,4 +1,4 @@
-module github.com/deltabyte/littleurl-api
+module gitlab.com/deltabyte_/littleurl/api
 
 go 1.17
 

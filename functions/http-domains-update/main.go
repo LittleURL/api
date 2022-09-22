@@ -10,10 +10,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/deltabyte/littleurl-api/internal/config"
-	"github.com/deltabyte/littleurl-api/internal/helpers"
-	"github.com/deltabyte/littleurl-api/internal/permissions"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
+	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
 type UpdateDomainRequest struct {
