@@ -1,7 +1,7 @@
 locals {
   envvar_lumigo = var.lumigo_token == "" ? { "LUMIGO_USE_TRACER_EXTENSION" = false } : {
     "LUMIGO_USE_TRACER_EXTENSION" = true,
-    "LUMIGO_TRACER_TOKEN" = var.lumigo_token
+    "LUMIGO_TRACER_TOKEN"         = var.lumigo_token
   }
 }
 

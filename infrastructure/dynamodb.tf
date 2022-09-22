@@ -28,10 +28,10 @@ resource "aws_dynamodb_table" "domain_users" {
   }
 
   global_secondary_index {
-    name               = "user-domains"
-    hash_key           = "user_id"
-    range_key          = "domain_id"
-    projection_type    = "ALL"
+    name            = "user-domains"
+    hash_key        = "user_id"
+    range_key       = "domain_id"
+    projection_type = "ALL"
   }
 }
 

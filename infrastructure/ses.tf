@@ -7,7 +7,7 @@ resource "aws_ses_domain_identity" "default" {
 }
 
 resource "aws_ses_email_identity" "noreply" {
-  email    = local.email_from
+  email = local.email_from
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
