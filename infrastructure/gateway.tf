@@ -42,10 +42,49 @@ resource "aws_apigatewayv2_stage" "v1" {
     throttling_rate_limit  = 50
   }
 
+  dynamic "access_log_settings" {
+    for_each = var.aws_gateway_access_log ? ["enabled"] : []
+
+    content {
+      destination_arn = aws_cloudwatch_log_group.gateway_v1[0].arn
+      format = jsonencode({
+        httpMethod     = "$context.httpMethod",
+        ip             = "$context.identity.sourceIp",
+        protocol       = "$context.protocol",
+        requestId      = "$context.requestId",
+        requestTime    = "$context.requestTime",
+        responseLength = "$context.responseLength",
+        routeKey       = "$context.routeKey",
+        status         = "$context.status",
+        error = {
+          message      = "$context.error.message"
+          responseType = "$context.error.responseType",
+        },
+        authorizer = {
+          error       = "$context.authorizer.error",
+          principalId = "$context.authorizer.principalId",
+        },
+        integration = {
+          status            = "$context.integration.status",
+          error             = "$context.integration.error",
+          integrationStatus = "$context.integration.integrationStatus",
+          latency           = "$context.integration.latency",
+          requestId         = "$context.integration.requestId",
+        }
+      })
+    }
+  }
+
   lifecycle {
     // auto-deploy changes this
     ignore_changes = [deployment_id]
   }
+}
+
+resource "aws_cloudwatch_log_group" "gateway_v1" {
+  count = var.aws_gateway_access_log ? 1 : 0
+
+  name = "APIGatewayV2/${local.prefix}api/v1"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

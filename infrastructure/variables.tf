@@ -2,8 +2,8 @@ locals {
   prefix      = "${var.application}-"
   environment = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
   aws_account = lookup(var.aws_accounts, local.environment)
-  zone_id    = data.cloudflare_zone.default.id
-  domain     = data.cloudflare_zone.default.name
+  zone_id     = data.cloudflare_zone.default.id
+  domain      = data.cloudflare_zone.default.name
 }
 
 variable "application" {
@@ -50,6 +50,12 @@ variable "aws_default_tags" {
   default = {
     application = "LittleURL"
   }
+}
+
+variable "aws_gateway_access_log" {
+  type        = bool
+  description = "Enable access logging for API Gateway"
+  default     = false
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
