@@ -4,7 +4,6 @@ TF = terraform -chdir=./infrastructure/
 # variables
 PROJECT=auth
 ENVIRONMENT=dev
-DEPLOY_BUCKET=littleurl-${ENVIRONMENT}-${PROJECT}-function-deployment
 
 ##@ Dependencies
 .PHONY: install install-tools
@@ -47,6 +46,11 @@ build-functions: ## Build lambda functions
 
 ##@ Deployment
 .PHONY: tf-init tf-plan tf-apply
+
+upload-functions: ## Upload functions to S3
+	@echo "Uploading lambda deployment packages"
+	$(TF) workspace select ${ENVIRONMENT}
+	bash scripts/upload-functions.sh
 
 tf-init: ## Initialise terraform
 	@echo "Initialising terraform"
