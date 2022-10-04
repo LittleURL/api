@@ -32,6 +32,7 @@ func Load() *Config {
 	// parse config
 	err := configor.New(&configor.Config{
 		ErrorOnUnmatchedKeys: true,
+		ENVPrefix:            "-",
 	}).Load(config)
 
 	// log error and kill server if config is invalid

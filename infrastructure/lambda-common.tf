@@ -1,7 +1,7 @@
 locals {
   envvar_tables = {
     "TABLES_DOMAINS"      = aws_dynamodb_table.domains.id
-    "TABLES_DOMAIN_USERS" = aws_dynamodb_table.domain_users.id
+    "TABLES_DOMAINUSERS" = aws_dynamodb_table.domain_users.id
   }
   envvar_default = merge(local.envvar_tables, local.envvar_lumigo)
 }

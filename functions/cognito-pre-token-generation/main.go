@@ -16,11 +16,11 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 )
 
-func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGenRequest) (*events.CognitoEventUserPoolsPreTokenGenResponse, error) {
+func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGen) (*events.CognitoEventUserPoolsPreTokenGen, error) {
 	cfg := config.Load()
 
 	// get user's ID
-	userId, exists := event.UserAttributes["sub"]
+	userId, exists := event.Request.UserAttributes["sub"]
 	if !exists {
 		return nil, errors.New("UserID not found")
 	}
@@ -34,9 +34,9 @@ func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGenR
 	// get domains
 	ddb := dynamodb.NewFromConfig(awsCfg)
 	res, err := ddb.Query(ctx, &dynamodb.QueryInput{
-		TableName:              &cfg.Tables.DomainUsers,
+		TableName:              aws.String(cfg.Tables.DomainUsers),
 		IndexName:              aws.String("user-domains"),
-		KeyConditionExpression: aws.String("userId = :userId"),
+		KeyConditionExpression: aws.String("user_id = :userId"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":userId": &types.AttributeValueMemberS{Value: userId},
 		},
@@ -57,12 +57,11 @@ func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGenR
 		claims[fmt.Sprintf("domain_%s", domainUser.DomainID)] = domainUser.Permission
 	}
 
-	// convert response to correct entity
-	return &events.CognitoEventUserPoolsPreTokenGenResponse{
-		ClaimsOverrideDetails: events.ClaimsOverrideDetails{
-			ClaimsToAddOrOverride: claims,
-		},
-	}, nil
+	// no fuckin' clue why this uses mutations, AWS is weird.
+	event.Response.ClaimsOverrideDetails = events.ClaimsOverrideDetails{
+		ClaimsToAddOrOverride: claims,
+	}
+	return &event, nil
 }
 
 func main() {

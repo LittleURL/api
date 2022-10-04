@@ -28,7 +28,7 @@ resource "aws_lambda_permission" "cognito_pre_token_generation" {
 module "lambda_cognito_pre_token_generation_dynamodb" {
   source = "./modules/iam-dynamodb"
   role   = module.lambda_cognito_pre_token_generation.role_id
-  table  = aws_dynamodb_table.domains.arn
+  table  = aws_dynamodb_table.domain_users.arn
 
   enable_read = true
 }
