@@ -7,6 +7,23 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
+func GatewayJsonResponse(code int, body interface{}) (*events.APIGatewayV2HTTPResponse, error) {
+	jsonBody, err := json.Marshal(body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &events.APIGatewayV2HTTPResponse{
+		StatusCode: code,
+		Body:       string(jsonBody),
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		IsBase64Encoded: false,
+	}, nil
+}
+
 type ErrorResponseBody struct {
 	StatusCode int         `json:"code"`
 	Message    string      `json:"message"`

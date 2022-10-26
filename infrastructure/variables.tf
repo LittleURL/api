@@ -59,7 +59,7 @@ variable "aws_gateway_access_log" {
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
-# CORS
+# API
 # ----------------------------------------------------------------------------------------------------------------------
 variable "cors_origins" {
   type = map(list(string))
@@ -75,4 +75,10 @@ variable "cors_expose" {
     dev  = ["*"]
     prod = []
   }
+}
+
+variable "auth_callback_urls" {
+  type        = list(string)
+  description = "Additional callback domains for cognito client"
+  default     = []
 }

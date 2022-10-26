@@ -7,9 +7,9 @@ import (
 
 type DomainID = string
 type Domain struct {
-	Id          DomainID          `json:"user_id"     dynamodbav:"id"`
-	Domain      string            `json:"domain"      dynamodbav:"domain"`
-	Description string            `json:"description" dynamodbav:"description"`
+	Id          DomainID `json:"id"          dynamodbav:"id"`
+	Domain      string   `json:"domain"      dynamodbav:"domain"`
+	Description string   `json:"description" dynamodbav:"description"`
 }
 
 func (domain *Domain) MarshalDynamoAV() (map[string]types.AttributeValue, error) {

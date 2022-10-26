@@ -89,10 +89,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		panic(err)
 	}
 
-	return &events.APIGatewayV2HTTPResponse{
-		StatusCode: 200,
-		Body:       "",
-	}, nil
+	return helpers.GatewayJsonResponse(200, "")
 }
 
 func main() {

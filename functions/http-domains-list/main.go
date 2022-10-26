@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -13,9 +12,10 @@ import (
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/config"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
+	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
 )
 
-func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 	cfg := config.Load()
 
 	// check allowed domains
@@ -58,14 +58,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.
 	}
 
 	// send data to user
-	body, err := json.Marshal(domains)
-	if err != nil {
-		panic(err)
-	}
-	return events.APIGatewayV2HTTPResponse{
-		StatusCode: 200,
-		Body:       string(body),
-	}, nil
+	return helpers.GatewayJsonResponse(200, domains)
 }
 
 func main() {
