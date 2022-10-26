@@ -3,17 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
-	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
 type UpdateDomainRequest struct {
@@ -21,21 +20,23 @@ type UpdateDomainRequest struct {
 }
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
-	cfg := config.Load()
+	// init app
+	app, err := application.New(ctx)
+	if err != nil {
+		fmt.Print("Failed to initialize app")
+		panic(err)
+	}
+
+	// extract the user's ID
+	userId, exists := event.RequestContext.Authorizer.JWT.Claims["kid"]
+	if !exists {
+		return helpers.GatewayErrorResponse(401, "UserID not found in auth token"), nil
+	}
 
 	// validate path params
 	domainId, exists := event.PathParameters["domainId"]
 	if !exists {
 		return helpers.GatewayErrorResponse(400, "Missing `domainId` path parameter"), nil
-	}
-
-	// check permissions
-	claims := event.RequestContext.Authorizer.JWT.Claims
-	userId, userIdExists := claims["sub"]
-	roles := permissions.ParseClaims(claims)
-	domainRole, roleExists := roles[domainId]
-	if !userIdExists || !roleExists || !domainRole.DomainWrite(domainId) {
-		return helpers.GatewayErrorResponse(403, ""), nil
 	}
 
 	// parse body
@@ -49,10 +50,10 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayValidationResponse(err), nil
 	}
 
-	// init AWS SDK
-	awsCfg, err := awsConfig.LoadDefaultConfig(ctx)
-	if err != nil {
-		return nil, err
+	// check permissions
+	domainUser, err := helpers.FindDomainUser(app, domainId, userId)
+	if err != nil || domainUser == nil || !domainUser.Role().DomainWrite() {
+		return helpers.GatewayErrorResponse(403, ""), nil
 	}
 
 	// build expression
@@ -74,9 +75,8 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// get domains
-	ddb := dynamodb.NewFromConfig(awsCfg)
-	_, err = ddb.UpdateItem(ctx, &dynamodb.UpdateItemInput{
-		TableName: &cfg.Tables.Domains,
+	_, err = app.DDBClient.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: &app.Cfg.Tables.Domains,
 		Key: map[string]types.AttributeValue{
 			"id": &types.AttributeValueMemberS{Value: domainId},
 		},

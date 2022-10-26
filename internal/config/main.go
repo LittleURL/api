@@ -8,15 +8,8 @@ import (
 )
 
 type Config struct {
-	Auth0  auth0Config
 	Queues queues
 	Tables tables
-}
-
-type auth0Config struct {
-	Domain       string
-	ClientID     string
-	ClientSecret string
 }
 
 type queues struct{}

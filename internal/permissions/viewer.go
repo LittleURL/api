@@ -1,13 +1,9 @@
 package permissions
 
-import "gitlab.com/deltabyte_/littleurl/api/internal/entities"
-
 const Viewer = "viewer"
 
-type ViewerRole struct {
-	DomainID entities.DomainID
-}
+type ViewerRole struct {}
 
 // domains
-func (role *ViewerRole) DomainRead(id string) bool  { return id == role.DomainID }
-func (role *ViewerRole) DomainWrite(id string) bool { return false }
+func (role *ViewerRole) DomainRead() bool  { return true }
+func (role *ViewerRole) DomainWrite() bool { return false }

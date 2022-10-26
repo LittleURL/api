@@ -1,13 +1,9 @@
 package permissions
 
-import "gitlab.com/deltabyte_/littleurl/api/internal/entities"
-
 const Editor = "editor"
 
-type EditorRole struct {
-	DomainID entities.DomainID
-}
+type EditorRole struct {}
 
 // domains
-func (role *EditorRole) DomainRead(id string) bool  { return id == role.DomainID }
-func (role *EditorRole) DomainWrite(id string) bool { return false }
+func (role *EditorRole) DomainRead() bool  { return true }
+func (role *EditorRole) DomainWrite() bool { return false }
