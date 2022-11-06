@@ -57,3 +57,13 @@ func (userRoles *UserRoles) FindByUserID(id UserID) *UserRole {
 
 	return nil
 }
+
+func (userRoles *UserRoles) FindByDomainID(id DomainID) *UserRole {
+	for _, userRole := range *userRoles {
+		if userRole.DomainID == id {
+			return userRole
+		}
+	}
+
+	return nil
+}

@@ -57,12 +57,6 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		panic(err) // TODO: gracefully handle unmarshalling error
 	}
 
-	// load users
-	if err := domain.LoadUsers(app); err != nil {
-		fmt.Print(err)
-		return nil, fmt.Errorf("Failed to load domain user permissions")
-	}
-
 	return helpers.GatewayJsonResponse(200, domain)
 }
 
