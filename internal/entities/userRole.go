@@ -6,6 +6,13 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
+func UserRoleKey(domainId DomainID, userId UserID) map[string]types.AttributeValue {
+	return map[string]types.AttributeValue{
+		"domain_id": &types.AttributeValueMemberS{Value: domainId},
+		"user_id": &types.AttributeValueMemberS{Value: userId},
+	}
+}
+
 /**
  * entity
  */
