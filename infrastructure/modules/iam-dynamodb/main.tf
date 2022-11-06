@@ -5,65 +5,54 @@ resource "aws_iam_role_policy" "dynamodb" {
 }
 
 data "aws_iam_policy_document" "dynamodb" {
-  // Read
   dynamic "statement" {
-    for_each = var.enable_read == true ? ["Read"] : []
-    content {
-      sid = "Read"
-      actions = [
-        "dynamodb:GetItem",
-        "dynamodb:Scan",
-        "dynamodb:Query",
-        "dynamodb:BatchGetItem"
-      ]
-      resources = [
-        var.table,
-        "${var.table}/index/*"
-      ]
-    }
-  }
+    for_each = var.tables
 
-  // Write
-  dynamic "statement" {
-    for_each = var.enable_write == true ? ["Write"] : []
     content {
-      sid = "Write"
-      actions = [
-        "dynamodb:PutItem",
-        "dynamodb:UpdateItem",
-        "dynamodb:BatchWriteItem",
-        "dynamodb:UpdateTimeToLive"
-      ]
-      resources = [var.table]
-    }
-  }
+      # "arn::etc/example-table" -> "ExampleTable"
+      sid = replace(title(
+        replace(element(
+          split("/", statement.value["arn"]),
+          length(split("/", statement.value["arn"])) - 1
+        ), "-", " ")
+      ), " ", "", )
 
-  // Delete
-  dynamic "statement" {
-    for_each = var.enable_delete == true ? ["Delete"] : []
-    content {
-      sid = "Delete"
-      actions = [
-        "dynamodb:Deleteitem"
-      ]
-      resources = [var.table]
-    }
-  }
+      actions = flatten([
+        # read
+        statement.value["enable_read"] == false ? [] : [
+          "dynamodb:GetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:BatchGetItem"
+        ],
 
-  // Stream
-  dynamic "statement" {
-    for_each = var.enable_stream == true ? ["Stream"] : []
-    content {
-      sid = "Stream"
-      actions = [
-        "dynamodb:ListStreams",
-        "dynamodb:DescribeStream",
-        "dynamodb:GetRecords",
-        "dynamodb:GetShardIterator"
-      ]
-      resources = [
-        "${var.table}/stream/*"
-      ]
+        # write
+        statement.value["enable_write"] == false ? [] : [
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:UpdateTimeToLive"
+        ],
+
+        # delete
+        statement.value["enable_delete"] == false ? [] : [
+          "dynamodb:DeleteItem"
+        ],
+
+        # stream
+        statement.value["enable_stream"] == false ? [] : [
+          "dynamodb:ListStreams",
+          "dynamodb:DescribeStream",
+          "dynamodb:GetRecords",
+          "dynamodb:GetShardIterator"
+        ]
+      ])
+
+      resources = compact([
+        statement.value["arn"],
+        statement.value["enable_read"] ? "${statement.value["arn"]}/index/*" : "",
+        statement.value["enable_stream"] ? "${statement.value["arn"]}/stream/*" : ""
+      ])
     }
   }
 }

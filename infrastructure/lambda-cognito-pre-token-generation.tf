@@ -52,7 +52,9 @@ data "aws_iam_policy_document" "lambda_cognito_pre_token_generation_cognito" {
 module "lambda_cognito_pre_token_generation_dynamodb" {
   source = "./modules/iam-dynamodb"
   role   = module.lambda_cognito_pre_token_generation.role_id
-  table  = aws_dynamodb_table.users.arn
 
-  enable_write = true
+  tables = [{
+    arn          = aws_dynamodb_table.users.arn
+    enable_write = true
+  }]
 }

@@ -1,4 +1,6 @@
 terraform {
+  required_version = "~> 1.3"
+
   backend "s3" {
     key                  = "api.tfstate"
     workspace_key_prefix = "state"

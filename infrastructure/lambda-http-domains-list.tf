@@ -34,7 +34,15 @@ module "gateway_lambda_http_domains_list" {
 module "lambda_http_domains_list_dynamodb" {
   source = "./modules/iam-dynamodb"
   role   = module.lambda_http_domains_list.role_id
-  table  = aws_dynamodb_table.domains.arn
 
-  enable_read = true
+  tables = [
+    {
+      arn         = aws_dynamodb_table.domains.arn
+      enable_read = true
+    },
+    {
+      arn         = aws_dynamodb_table.user_roles.arn
+      enable_read = true
+    }
+  ]
 }
