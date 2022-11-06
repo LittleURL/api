@@ -6,12 +6,9 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
-type UserRoles []UserRole
-
-func (userRoles *UserRoles) UnmarshalDynamoAV(items []map[string]types.AttributeValue) error {
-	return attributevalue.UnmarshalListOfMaps(items, userRoles)
-}
-
+/**
+ * entity
+ */
 type UserRole struct {
 	DomainID DomainID `json:"domain_id" dynamodbav:"domain_id"`
 	UserID   string   `json:"user_id"   dynamodbav:"user_id"`
@@ -40,4 +37,23 @@ func (userRole *UserRole) Role() permissions.Role {
 	default:
 		return &permissions.NobodyRole{}
 	}
+}
+
+/**
+ * slice of entities
+ */
+type UserRoles []*UserRole
+
+func (userRoles *UserRoles) UnmarshalDynamoAV(items []map[string]types.AttributeValue) error {
+	return attributevalue.UnmarshalListOfMaps(items, userRoles)
+}
+
+func (userRoles *UserRoles) FindByUserID(id UserID) *UserRole {
+	for _, userRole := range *userRoles {
+		if userRole.UserID == id {
+			return userRole
+		}
+	}
+
+	return nil
 }
