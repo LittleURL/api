@@ -28,7 +28,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// extract the user's ID
-	userId, exists := event.RequestContext.Authorizer.JWT.Claims["kid"]
+	userId, exists := event.RequestContext.Authorizer.JWT.Claims["sub"]
 	if !exists {
 		return helpers.GatewayErrorResponse(401, "UserID not found in auth token"), nil
 	}

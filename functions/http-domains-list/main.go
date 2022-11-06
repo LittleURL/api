@@ -25,7 +25,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// extract the user's ID
-	userId, exists := event.RequestContext.Authorizer.JWT.Claims["kid"]
+	userId, exists := event.RequestContext.Authorizer.JWT.Claims["sub"]
 	if !exists {
 		return helpers.GatewayErrorResponse(401, "UserID not found in auth token"), nil
 	}
@@ -38,10 +38,10 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	ddb := dynamodb.NewFromConfig(awsCfg)
 
 	// get domain IDs that the current user has access to
-	userDomainsRes, err := ddb.Query(ctx, &dynamodb.QueryInput{
-		TableName:        &app.Cfg.Tables.UserRoles,
-		IndexName:        aws.String("user-domains"),
-		FilterExpression: aws.String("user_id = :id"),
+	userRolesRes, err := ddb.Query(ctx, &dynamodb.QueryInput{
+		TableName:              &app.Cfg.Tables.UserRoles,
+		IndexName:              aws.String("user-domains"),
+		KeyConditionExpression: aws.String("user_id = :id"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":id": &types.AttributeValueMemberS{
 				Value: userId,
@@ -52,8 +52,13 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return nil, err
 	}
 	userRoles := entities.UserRoles{}
-	if err := userRoles.UnmarshalDynamoAV(userDomainsRes.Items); err != nil {
+	if err := userRoles.UnmarshalDynamoAV(userRolesRes.Items); err != nil {
 		return helpers.GatewayErrorResponse(500, "Failed to parse domain permissions"), err
+	}
+
+	// shortcut rest of function if the user has zero roles
+	if len(userRoles) < 1 {
+		return helpers.GatewayJsonResponse(200, make([]string, 0))
 	}
 
 	// extract domain IDs
