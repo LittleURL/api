@@ -1,26 +1,26 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
-module "lambda_http_users_show" {
+module "lambda_http_users_list" {
   source = "./modules/lambda-function"
 
   aws_account = local.aws_account
   aws_region  = var.aws_region
 
-  name          = "${local.prefix}http-users-show"
-  source_key    = "http-users-show.zip"
+  name          = "${local.prefix}http-users-list"
+  source_key    = "http-users-list.zip"
   source_bucket = aws_s3_bucket.functions.id
 
   environment_variables = merge(local.envvar_default, {})
 }
 
-module "gateway_lambda_http_users_show" {
+module "gateway_lambda_http_users_list" {
   source = "./modules/lambda-gateway"
   method = "GET"
   path   = "/domains/{domainId}/users"
 
-  function_name       = module.lambda_http_users_show.function_name
-  function_invoke_arn = module.lambda_http_users_show.function_invoke_arn
+  function_name       = module.lambda_http_users_list.function_name
+  function_invoke_arn = module.lambda_http_users_list.function_invoke_arn
 
   gateway_id            = aws_apigatewayv2_api.api.id
   gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
@@ -31,9 +31,9 @@ module "gateway_lambda_http_users_show" {
 # ----------------------------------------------------------------------------------------------------------------------
 # Permissions
 # ----------------------------------------------------------------------------------------------------------------------
-module "lambda_http_users_show_dynamodb" {
+module "lambda_http_users_list_dynamodb" {
   source = "./modules/iam-dynamodb"
-  role   = module.lambda_http_users_show.role_id
+  role   = module.lambda_http_users_list.role_id
 
   tables = [
     {

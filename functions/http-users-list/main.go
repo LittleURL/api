@@ -38,7 +38,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	// check permissions
 	userRole, err := helpers.FindUserRole(app, domainId, userId)
 	if err != nil || userRole == nil || !userRole.Role().UsersRead() {
-		return helpers.GatewayErrorResponse(403, ""), nil
+		return helpers.GatewayErrorResponse(403, ""), err
 	}
 
 	// get roles
