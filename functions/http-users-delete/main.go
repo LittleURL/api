@@ -2,23 +2,16 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
 )
-
-type UpdateDomainRequest struct {
-	RoleName *string `json:"role_name" validate:"required,oneof=admin editor viewer nobody"`
-}
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 	// init app
@@ -44,17 +37,6 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(400, "Missing `userId` path parameter"), nil
 	}
 
-	// parse body
-	reqBody := &UpdateDomainRequest{}
-	if err := json.Unmarshal([]byte(event.Body), reqBody); err != nil {
-		return helpers.GatewayErrorResponse(500, "Failed to unmarshal body"), err
-	}
-
-	// validate request body
-	if err := helpers.ValidateRequest(reqBody); err != nil {
-		return helpers.GatewayValidationResponse(err), nil
-	}
-
 	// prevent changing of own perms
 	if userId == currentUserId {
 		return helpers.GatewayErrorResponse(400, "Cannot change own role"), nil
@@ -66,30 +48,13 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(403, ""), err
 	}
 
-	// create entity and marshal
-	userRole := &entities.UserRole{
-		DomainID: domainId,
-		UserID:   userId,
-		RoleName: *reqBody.RoleName,
-	}
-	item, err := userRole.MarshalDynamoAV()
-	if err != nil {
-		return helpers.GatewayErrorResponse(500, "Failed to marshal userRole"), err
-	}
-
 	// write item to dynamo
-	_, err = app.DDBClient.PutItem(ctx, &dynamodb.PutItemInput{
+	_, err = app.DDBClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: &app.Cfg.Tables.UserRoles,
-		Item:      item,
-		// only allow updates for existing users
-		ConditionExpression: aws.String("attribute_exists(domain_id) AND attribute_exists(user_id)"),
+		Key:       entities.UserRoleKey(domainId, userId),
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "ConditionalCheckFailedException") {
-			return helpers.GatewayErrorResponse(400, "You can only update existing roles"), nil
-		}
-
-		return helpers.GatewayErrorResponse(500, "Failed to write userRole to database"), err
+		return helpers.GatewayErrorResponse(500, "Failed to delete userRole"), err
 	}
 
 	return helpers.GatewayJsonResponse(200, nil)

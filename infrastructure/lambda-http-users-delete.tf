@@ -1,26 +1,26 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
-module "lambda_http_users_update" {
+module "lambda_http_users_delete" {
   source = "./modules/lambda-function"
 
   aws_account = local.aws_account
   aws_region  = var.aws_region
 
-  name          = "${local.prefix}http-users-update"
-  source_key    = "http-users-update.zip"
+  name          = "${local.prefix}http-users-delete"
+  source_key    = "http-users-delete.zip"
   source_bucket = aws_s3_bucket.functions.id
 
   environment_variables = merge(local.envvar_default, {})
 }
 
-module "gateway_lambda_http_users_update" {
+module "gateway_lambda_http_users_delete" {
   source = "./modules/lambda-gateway"
-  method = "PUT"
+  method = "DELETE"
   path   = "/domains/{domainId}/users/{userId}"
 
-  function_name       = module.lambda_http_users_update.function_name
-  function_invoke_arn = module.lambda_http_users_update.function_invoke_arn
+  function_name       = module.lambda_http_users_delete.function_name
+  function_invoke_arn = module.lambda_http_users_delete.function_invoke_arn
 
   gateway_id            = aws_apigatewayv2_api.api.id
   gateway_execution_arn = aws_apigatewayv2_api.api.execution_arn
@@ -31,15 +31,15 @@ module "gateway_lambda_http_users_update" {
 # ----------------------------------------------------------------------------------------------------------------------
 # Permissions
 # ----------------------------------------------------------------------------------------------------------------------
-module "lambda_http_users_update_dynamodb" {
+module "lambda_http_users_delete_dynamodb" {
   source = "./modules/iam-dynamodb"
-  role   = module.lambda_http_users_update.role_id
+  role   = module.lambda_http_users_delete.role_id
 
   tables = [
     {
       arn           = aws_dynamodb_table.user_roles.arn
       enable_read   = true
-      enable_write  = true
+      enable_delete = true
     }
   ]
 }
