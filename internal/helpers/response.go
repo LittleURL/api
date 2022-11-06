@@ -9,6 +9,9 @@ import (
 
 func GatewayJsonResponse(code int, body interface{}) (*events.APIGatewayV2HTTPResponse, error) {
 	jsonBody, err := json.Marshal(body)
+	if body == nil {
+		jsonBody = []byte("")
+	}
 
 	if err != nil {
 		return nil, err
