@@ -57,6 +57,9 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		panic(err) // TODO: gracefully handle unmarshalling error
 	}
 
+	// set current user's role
+	domain.UserRole = userRole.RoleName
+
 	return helpers.GatewayJsonResponse(200, domain)
 }
 

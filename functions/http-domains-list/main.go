@@ -90,6 +90,10 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		if err := newDomain.UnmarshalDynamoAV(domain); err != nil {
 			panic(err)
 		}
+
+		// add the current user's role
+		newDomain.UserRole = (*userRoles.FindByDomainID(newDomain.Id)).RoleName
+
 		domains = append(domains, newDomain)
 	}
 
