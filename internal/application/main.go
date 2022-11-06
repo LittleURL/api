@@ -5,13 +5,14 @@ import (
 
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"gitlab.com/deltabyte_/littleurl/api/internal/config"
 )
 
 type Application struct {
 	Ctx       context.Context
 	Cfg       *config.Config
-	AwsCfg    awsConfig.Config
+	AwsCfg    aws.Config
 	DDBClient *dynamodb.Client
 }
 

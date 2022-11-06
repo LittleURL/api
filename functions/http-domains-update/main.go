@@ -51,8 +51,8 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// check permissions
-	domainUser, err := helpers.FindDomainUser(app, domainId, userId)
-	if err != nil || domainUser == nil || !domainUser.Role().DomainWrite() {
+	userRole, err := helpers.FindUserRole(app, domainId, userId)
+	if err != nil || userRole == nil || !userRole.Role().DomainWrite() {
 		return helpers.GatewayErrorResponse(403, ""), nil
 	}
 

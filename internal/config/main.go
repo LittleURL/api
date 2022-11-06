@@ -8,15 +8,17 @@ import (
 )
 
 type Config struct {
-	Queues queues
-	Tables tables
+	Queues        queues
+	Tables        tables
+	CognitoPoolId string
 }
 
 type queues struct{}
 
 type tables struct {
-	Domains     string
-	DomainUsers string
+	Domains   string
+	UserRoles string
+	Users     string
 }
 
 func Load() *Config {

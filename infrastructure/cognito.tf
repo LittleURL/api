@@ -26,6 +26,11 @@ resource "aws_cognito_user_pool" "main" {
     from_email_address    = local.email_from
     source_arn            = aws_ses_email_identity.noreply.arn
   }
+
+  lambda_config {
+    # manually defined ARN due to terraform dependency cycle
+    pre_token_generation = "arn:aws:lambda:${var.aws_region}:${local.aws_account}:function:${local.function_name_cognito_pre_token_gen}"
+  }
 }
 
 resource "aws_cognito_user_pool_client" "dashboard" {

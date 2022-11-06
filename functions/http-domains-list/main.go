@@ -2,21 +2,27 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go/aws"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
 )
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
-	cfg := config.Load()
+	// init app
+	app, err := application.New(ctx)
+	if err != nil {
+		fmt.Print("Failed to initialize app")
+		panic(err)
+	}
 
 	// extract the user's ID
 	userId, exists := event.RequestContext.Authorizer.JWT.Claims["kid"]
@@ -33,7 +39,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 
 	// get domain IDs that the current user has access to
 	userDomainsRes, err := ddb.Query(ctx, &dynamodb.QueryInput{
-		TableName:        &cfg.Tables.DomainUsers,
+		TableName:        &app.Cfg.Tables.UserRoles,
 		IndexName:        aws.String("user-domains"),
 		FilterExpression: aws.String("user_id = :id"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
@@ -45,18 +51,18 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	if err != nil {
 		return nil, err
 	}
-	domainUsers := entities.DomainUsers{}
-	if err := domainUsers.UnmarshalDynamoAV(userDomainsRes.Items); err != nil {
+	userRoles := entities.UserRoles{}
+	if err := userRoles.UnmarshalDynamoAV(userDomainsRes.Items); err != nil {
 		return helpers.GatewayErrorResponse(500, "Failed to parse domain permissions"), err
 	}
 
 	// extract domain IDs
 	domainKeys := []map[string]types.AttributeValue{}
-	for _, domainUser := range domainUsers {
-		if domainUser.Role().DomainRead() {
+	for _, userRole := range userRoles {
+		if userRole.Role().DomainRead() {
 			domainKeys = append(domainKeys, map[string]types.AttributeValue{
 				"id": &types.AttributeValueMemberS{
-					Value: domainUser.DomainID,
+					Value: userRole.DomainID,
 				},
 			})
 		}
@@ -65,7 +71,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	// get domains
 	res, err := ddb.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
 		RequestItems: map[string]types.KeysAndAttributes{
-			cfg.Tables.Domains: {Keys: domainKeys},
+			app.Cfg.Tables.Domains: {Keys: domainKeys},
 		},
 	})
 	if err != nil {
@@ -74,7 +80,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 
 	// convert response to correct entity
 	domains := []*entities.Domain{}
-	for _, domain := range res.Responses[cfg.Tables.Domains] {
+	for _, domain := range res.Responses[app.Cfg.Tables.Domains] {
 		newDomain := &entities.Domain{}
 		if err := newDomain.UnmarshalDynamoAV(domain); err != nil {
 			panic(err)

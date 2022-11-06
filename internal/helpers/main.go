@@ -10,9 +10,9 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
-func FindDomainUser(app *application.Application, domainId string, userId string) (*entities.DomainUser, error) {
+func FindUserRole(app *application.Application, domainId string, userId string) (*entities.UserRole, error) {
 	res, err := app.DDBClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
-		TableName: &app.Cfg.Tables.DomainUsers,
+		TableName: &app.Cfg.Tables.UserRoles,
 		Key: map[string]types.AttributeValue{
 			"domain_id": &types.AttributeValueMemberS{
 				Value: domainId,
@@ -27,10 +27,10 @@ func FindDomainUser(app *application.Application, domainId string, userId string
 	}
 
 	// unmarshal domain user, default permission to nobody if the record was not found
-	domainUser := &entities.DomainUser{Permission: permissions.Nobody}
+	userRole := &entities.UserRole{RoleName: permissions.Nobody}
 	if res != nil && res.Item != nil {
-		domainUser.UnmarshalDynamoAV(res.Item)
+		userRole.UnmarshalDynamoAV(res.Item)
 	}
 
-	return domainUser, nil
+	return userRole, nil
 }

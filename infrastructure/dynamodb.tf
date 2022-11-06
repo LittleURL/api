@@ -10,8 +10,8 @@ resource "aws_dynamodb_table" "domains" {
   }
 }
 
-resource "aws_dynamodb_table" "domain_users" {
-  name         = "${local.prefix}domain-users"
+resource "aws_dynamodb_table" "user_roles" {
+  name         = "${local.prefix}user-roles"
   billing_mode = "PAY_PER_REQUEST"
 
   hash_key  = "domain_id"
@@ -32,6 +32,19 @@ resource "aws_dynamodb_table" "domain_users" {
     hash_key        = "user_id"
     range_key       = "domain_id"
     projection_type = "ALL"
+  }
+}
+
+# This mostly exists to make querying easier because Cognito's APIs are dogshit
+resource "aws_dynamodb_table" "users" {
+  name         = "${local.prefix}users"
+  billing_mode = "PAY_PER_REQUEST"
+
+  hash_key = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
   }
 }
 
