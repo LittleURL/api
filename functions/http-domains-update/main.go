@@ -74,7 +74,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return nil, err
 	}
 
-	// get domains
+	// update domain
 	_, err = app.DDBClient.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: &app.Cfg.Tables.Domains,
 		Key: map[string]types.AttributeValue{
@@ -89,7 +89,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		panic(err)
 	}
 
-	return helpers.GatewayJsonResponse(200, "")
+	return helpers.GatewayJsonResponse(200, nil)
 }
 
 func main() {

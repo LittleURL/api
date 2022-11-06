@@ -16,7 +16,7 @@ module "lambda_http_domains_update" {
 
 module "gateway_lambda_http_domains_update" {
   source = "./modules/lambda-gateway"
-  method = "PATCH"
+  method = "PUT"
   path   = "/domains/{domainId}"
 
   function_name       = module.lambda_http_domains_update.function_name
