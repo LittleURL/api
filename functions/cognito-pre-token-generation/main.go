@@ -9,24 +9,14 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	cognito "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
-	cognitoTypes "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
+	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
 )
 
-func flattenAttributes(attributes []cognitoTypes.AttributeType) map[string]string {
-	flattened := map[string]string{}
-
-	for _, attribute := range attributes {
-		flattened[*attribute.Name] = *attribute.Value
-	}
-
-	return flattened
-}
-
-func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGen) (*events.CognitoEventUserPoolsPreTokenGen, error) {
+func Handler(ctx context.Context, event *events.CognitoEventUserPoolsPreTokenGen) (*events.CognitoEventUserPoolsPreTokenGen, error) {
 	// init app
 	app, err := application.New(ctx)
 	if err != nil {
@@ -53,7 +43,7 @@ func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGen)
 		fmt.Print("Cognito ListUsers response is empty")
 		return nil, fmt.Errorf("failed to fetch user attributes")
 	}
-	userAttributes := flattenAttributes(res.Users[0].Attributes)
+	userAttributes := helpers.FlattenCognitoUserAttributes(res.Users[0].Attributes)
 
 	// map to user entity
 	fmt.Print(userAttributes)
@@ -61,6 +51,7 @@ func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGen)
 		Id:       userId,
 		Name:     userAttributes["name"],
 		Username: *res.Users[0].Username,
+		Picture: userAttributes["picture"],
 	}
 	ddbUser, err := user.MarshalDynamoAV()
 	if err != nil {
@@ -76,7 +67,7 @@ func Handler(ctx context.Context, event events.CognitoEventUserPoolsPreTokenGen)
 		return nil, err
 	}
 
-	return &event, nil
+	return event, nil
 }
 
 func main() {

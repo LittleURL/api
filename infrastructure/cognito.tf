@@ -30,6 +30,7 @@ resource "aws_cognito_user_pool" "main" {
   lambda_config {
     # manually defined ARN due to terraform dependency cycle
     pre_token_generation = "arn:aws:lambda:${var.aws_region}:${local.aws_account}:function:${local.function_name_cognito_pre_token_gen}"
+    post_authentication  = "arn:aws:lambda:${var.aws_region}:${local.aws_account}:function:${local.function_name_cognito_post_authentication}"
   }
 }
 

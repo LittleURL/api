@@ -14,6 +14,7 @@ type User struct {
 	Id       UserID `json:"id"             dynamodbav:"id"`
 	Name     string `json:"name"           dynamodbav:"name"`
 	Username string `json:"username"       dynamodbav:"username"`
+	Picture  string `json:"picture"        dynamodbav:"picture"`
 	Role     string `json:"role,omitempty" dynamodbav:"-"` // not stored in same table as users
 }
 
