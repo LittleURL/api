@@ -10,6 +10,38 @@ resource "aws_dynamodb_table" "domains" {
   }
 }
 
+resource "aws_dynamodb_table" "links" {
+  name         = "${local.prefix}links"
+  billing_mode = "PAY_PER_REQUEST"
+
+  hash_key  = "domain_id"
+  range_key = "uri"
+
+  attribute {
+    name = "domain_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "uri"
+    type = "S"
+  }
+
+  attribute {
+    name = "updated_at"
+    type = "N"
+  }
+
+  local_secondary_index {
+    name            = "updated"
+    range_key       = "updated_at"
+    projection_type = "ALL"
+  }
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Auth
+# ----------------------------------------------------------------------------------------------------------------------
 resource "aws_dynamodb_table" "user_roles" {
   name         = "${local.prefix}user-roles"
   billing_mode = "PAY_PER_REQUEST"

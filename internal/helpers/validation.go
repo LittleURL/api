@@ -14,7 +14,7 @@ func GatewayValidationResponse(validationError error) *events.APIGatewayV2HTTPRe
 	}
 
 	// marshal body
-	validationErrors := validationError.(validator.ValidationErrors)
+	validationErrors := validationError.Error()
 	bodyBytes, _ := json.Marshal(ErrorResponseBody{
 		StatusCode: 400,
 		Message:    "ValidationFailed",

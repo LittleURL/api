@@ -11,3 +11,7 @@ func (role *AdminRole) DomainWrite() bool { return true }
 // users
 func (role *AdminRole) UsersRead() bool  { return true }
 func (role *AdminRole) UsersWrite() bool { return true }
+
+// links
+func (role *AdminRole) LinksRead() bool  { return true }
+func (role *AdminRole) LinksWrite() bool { return true }

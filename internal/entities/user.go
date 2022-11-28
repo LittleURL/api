@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 type UserID = string
@@ -18,12 +18,12 @@ type User struct {
 	Role     string `json:"role,omitempty" dynamodbav:"-"` // not stored in same table as users
 }
 
-func (user *User) MarshalDynamoAV() (map[string]types.AttributeValue, error) {
-	return attributevalue.MarshalMap(user)
+func (user *User) MarshalDynamoAV() (map[string]ddbTypes.AttributeValue, error) {
+	return av.MarshalMap(user)
 }
 
-func (user *User) UnmarshalDynamoAV(item map[string]types.AttributeValue) error {
-	return attributevalue.UnmarshalMap(item, user)
+func (user *User) UnmarshalDynamoAV(item map[string]ddbTypes.AttributeValue) error {
+	return av.UnmarshalMap(item, user)
 }
 
 /**
@@ -31,6 +31,6 @@ func (user *User) UnmarshalDynamoAV(item map[string]types.AttributeValue) error 
  */
 type Users []*User
 
-func (users *Users) UnmarshalDynamoAV(items []map[string]types.AttributeValue) error {
-	return attributevalue.UnmarshalListOfMaps(items, users)
+func (users *Users) UnmarshalDynamoAV(items []map[string]ddbTypes.AttributeValue) error {
+	return av.UnmarshalListOfMaps(items, users)
 }

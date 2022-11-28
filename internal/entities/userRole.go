@@ -1,15 +1,15 @@
 package entities
 
 import (
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
 )
 
-func UserRoleKey(domainId DomainID, userId UserID) map[string]types.AttributeValue {
-	return map[string]types.AttributeValue{
-		"domain_id": &types.AttributeValueMemberS{Value: domainId},
-		"user_id": &types.AttributeValueMemberS{Value: userId},
+func UserRoleKey(domainId DomainID, userId UserID) map[string]ddbTypes.AttributeValue {
+	return map[string]ddbTypes.AttributeValue{
+		"domain_id": &ddbTypes.AttributeValueMemberS{Value: domainId},
+		"user_id":   &ddbTypes.AttributeValueMemberS{Value: userId},
 	}
 }
 
@@ -22,12 +22,12 @@ type UserRole struct {
 	RoleName string   `json:"role_name" dynamodbav:"role_name"`
 }
 
-func (userRole *UserRole) MarshalDynamoAV() (map[string]types.AttributeValue, error) {
-	return attributevalue.MarshalMap(userRole)
+func (userRole *UserRole) MarshalDynamoAV() (map[string]ddbTypes.AttributeValue, error) {
+	return av.MarshalMap(userRole)
 }
 
-func (userRole *UserRole) UnmarshalDynamoAV(item map[string]types.AttributeValue) error {
-	return attributevalue.UnmarshalMap(item, userRole)
+func (userRole *UserRole) UnmarshalDynamoAV(item map[string]ddbTypes.AttributeValue) error {
+	return av.UnmarshalMap(item, userRole)
 }
 
 func (userRole *UserRole) Role() permissions.Role {
@@ -51,8 +51,8 @@ func (userRole *UserRole) Role() permissions.Role {
  */
 type UserRoles []*UserRole
 
-func (userRoles *UserRoles) UnmarshalDynamoAV(items []map[string]types.AttributeValue) error {
-	return attributevalue.UnmarshalListOfMaps(items, userRoles)
+func (userRoles *UserRoles) UnmarshalDynamoAV(items []map[string]ddbTypes.AttributeValue) error {
+	return av.UnmarshalListOfMaps(items, userRoles)
 }
 
 func (userRoles *UserRoles) FindByUserID(id UserID) *UserRole {

@@ -19,6 +19,7 @@ type tables struct {
 	Domains   string
 	UserRoles string
 	Users     string
+	Links     string
 }
 
 func Load() *Config {

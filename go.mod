@@ -43,6 +43,7 @@ require (
 	github.com/go-logr/stdr v1.2.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jinzhu/copier v0.3.5
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
