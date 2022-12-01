@@ -96,3 +96,24 @@ resource "aws_acm_certificate_validation" "cognito" {
   certificate_arn         = aws_acm_certificate.cognito.arn
   validation_record_fqdns = [for record in cloudflare_record.cognito_cert : record.hostname]
 }
+
+# ----------------------------------------------------------------------------------------------------------------------
+# SSM Params
+# ----------------------------------------------------------------------------------------------------------------------
+resource "aws_ssm_parameter" "cognito_pool_id" {
+  name  = "/${var.application}/cognito/pool-id"
+  type  = "String"
+  value = aws_cognito_user_pool.main.id
+}
+
+resource "aws_ssm_parameter" "cognito_password_polic" {
+  name  = "/${var.application}/cognito/password-policy"
+  type  = "String"
+  value = jsonencode(aws_cognito_user_pool.main.password_policy[0])
+}
+
+resource "aws_ssm_parameter" "cognito_client_dashboard" {
+  name  = "/${var.application}/cognito/client-dashboard"
+  type  = "String"
+  value = aws_cognito_user_pool_client.dashboard.id
+}
