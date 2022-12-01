@@ -22,9 +22,8 @@ func gravatarUrl(email string) string {
 	clean := strings.ToLower(strings.TrimSpace(email))
 	hash := md5.Sum([]byte(clean))
 	emailHash := hex.EncodeToString(hash[:])
-	return "https://www.gravatar.com/avatar/" + emailHash
+	return "https://www.gravatar.com/avatar/" + emailHash + "?d=404"
 }
-
 
 func Handler(ctx context.Context, event *events.CognitoEventUserPoolsPostAuthentication) (*events.CognitoEventUserPoolsPostAuthentication, error) {
 	// init app
@@ -60,15 +59,24 @@ func Handler(ctx context.Context, event *events.CognitoEventUserPoolsPostAuthent
 	userEmail, emailExists := userAttributes["email"]
 	if emailExists {
 		updatedAttributes = append(updatedAttributes, cognitoTypes.AttributeType{
-			Name: aws.String("picture"),
+			Name:  aws.String("picture"),
 			Value: aws.String(gravatarUrl(userEmail)),
 		})
 	}
-	
+
+	// nickname
+	nickname, nicknameExists := userAttributes["nickname"]
+	if nicknameExists {
+		updatedAttributes = append(updatedAttributes, cognitoTypes.AttributeType{
+			Name:  aws.String("nickname"),
+			Value: aws.String(gravatarUrl(nickname)),
+		})
+	}
+
 	// update the user's attributes
 	_, err = cognitoClient.AdminUpdateUserAttributes(ctx, &cognito.AdminUpdateUserAttributesInput{
-		UserPoolId: &app.Cfg.CognitoPoolId,
-		Username: listUsersRes.Users[0].Username,
+		UserPoolId:     &app.Cfg.CognitoPoolId,
+		Username:       listUsersRes.Users[0].Username,
 		UserAttributes: updatedAttributes,
 	})
 	if err != nil {

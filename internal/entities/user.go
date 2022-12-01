@@ -13,7 +13,8 @@ type UserID = string
 type User struct {
 	Id       UserID `json:"id"             dynamodbav:"id"`
 	Name     string `json:"name"           dynamodbav:"name"`
-	Username string `json:"username"       dynamodbav:"username"`
+	Username string `json:"-"              dynamodbav:"username"`
+	Nickname string `json:"nickname"       dynamodbav:"nickname"`
 	Picture  string `json:"picture"        dynamodbav:"picture"`
 	Role     string `json:"role,omitempty" dynamodbav:"-"` // not stored in same table as users
 }
