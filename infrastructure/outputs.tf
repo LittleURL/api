@@ -1,5 +1,5 @@
 output "functions_bucket" {
-  value = aws_s3_bucket.functions.id
+  value = module.functions.functions_bucket
 }
 
 output "aws_assume_role" {

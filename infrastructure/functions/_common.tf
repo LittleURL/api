@@ -1,10 +1,17 @@
 locals {
   envvar_tables = {
-    "TABLES_DOMAINS"   = aws_dynamodb_table.domains.id
-    "TABLES_USERROLES" = aws_dynamodb_table.user_roles.id
-    "TABLES_USERS"     = aws_dynamodb_table.users.id
-    "TABLES_LINKS"     = aws_dynamodb_table.links.id
+    "TABLES_DOMAINS"   = var.ddb_table_names.domains
+    "TABLES_USERROLES" = var.ddb_table_names.user_roles
+    "TABLES_USERS"     = var.ddb_table_names.users
+    "TABLES_LINKS"     = var.ddb_table_names.links
   }
+
+
+  envvar_lumigo = var.lumigo_token == "" ? { "LUMIGO_USE_TRACER_EXTENSION" = false } : {
+    "LUMIGO_USE_TRACER_EXTENSION" = true,
+    "LUMIGO_TRACER_TOKEN"         = var.lumigo_token
+  }
+
   envvar_default = merge(local.envvar_tables, local.envvar_lumigo)
 }
 
@@ -12,7 +19,7 @@ locals {
 # Function deployment package storage
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_s3_bucket" "functions" {
-  bucket_prefix = "${local.prefix}function-deployment-"
+  bucket_prefix = "${var.prefix}function-deployment-"
 
   tags = {
     internal = true
@@ -104,7 +111,7 @@ data "aws_iam_policy_document" "function_upload" {
       "lambda:UpdateFunctionCode"
     ]
     resources = [
-      "arn:aws:lambda:${var.aws_region}:${local.aws_account}:function:${local.prefix}*"
+      "arn:aws:lambda:${var.aws_region}:${var.aws_account}:function:${var.prefix}*"
     ]
   }
 }

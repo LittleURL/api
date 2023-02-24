@@ -1,14 +1,14 @@
 locals {
-  function_name_cognito_post_authentication = "${local.prefix}cognito-post-authentication"
+  function_name_cognito_post_authentication = "${var.prefix}cognito-post-authentication"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
 module "lambda_cogntio_post_authentication" {
-  source = "./modules/lambda-function"
+  source = "../modules/lambda-function"
 
-  aws_account = local.aws_account
+  aws_account = var.aws_account
   aws_region  = var.aws_region
 
   name          = local.function_name_cognito_post_authentication
@@ -16,7 +16,7 @@ module "lambda_cogntio_post_authentication" {
   source_bucket = aws_s3_bucket.functions.id
 
   environment_variables = merge(local.envvar_default, {
-    "COGNITOPOOLID" = aws_cognito_user_pool.main.id
+    "COGNITOPOOLID" = var.cognito_pool_id
   })
 }
 
@@ -25,7 +25,7 @@ resource "aws_lambda_permission" "cogntio_post_authentication" {
   action        = "lambda:InvokeFunction"
   function_name = module.lambda_cogntio_post_authentication.function_name
   principal     = "cognito-idp.amazonaws.com"
-  source_arn    = aws_cognito_user_pool.main.arn
+  source_arn    = var.cognito_pool_arn
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -46,6 +46,6 @@ data "aws_iam_policy_document" "lambda_cogntio_post_authentication_cognito" {
       "cognito-idp:AdminUpdateUserAttributes"
     ]
 
-    resources = [aws_cognito_user_pool.main.arn]
+    resources = [var.cognito_pool_arn]
   }
 }

@@ -1,14 +1,14 @@
 locals {
-  function_name_cognito_pre_token_gen = "${local.prefix}cognito-pre-token-generation"
+  function_name_cognito_pre_token_gen = "${var.prefix}cognito-pre-token-generation"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
 module "lambda_cognito_pre_token_generation" {
-  source = "./modules/lambda-function"
+  source = "../modules/lambda-function"
 
-  aws_account = local.aws_account
+  aws_account = var.aws_account
   aws_region  = var.aws_region
 
   name          = local.function_name_cognito_pre_token_gen
@@ -16,7 +16,7 @@ module "lambda_cognito_pre_token_generation" {
   source_bucket = aws_s3_bucket.functions.id
 
   environment_variables = merge(local.envvar_default, {
-    "COGNITOPOOLID" = aws_cognito_user_pool.main.id
+    "COGNITOPOOLID" = var.cognito_pool_id
   })
 }
 
@@ -25,7 +25,7 @@ resource "aws_lambda_permission" "cognito_pre_token_generation" {
   action        = "lambda:InvokeFunction"
   function_name = module.lambda_cognito_pre_token_generation.function_name
   principal     = "cognito-idp.amazonaws.com"
-  source_arn    = aws_cognito_user_pool.main.arn
+  source_arn    = var.cognito_pool_arn
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -45,16 +45,16 @@ data "aws_iam_policy_document" "lambda_cognito_pre_token_generation_cognito" {
       "cognito-idp:ListUsers"
     ]
 
-    resources = [aws_cognito_user_pool.main.arn]
+    resources = [var.cognito_pool_arn]
   }
 }
 
 module "lambda_cognito_pre_token_generation_dynamodb" {
-  source = "./modules/iam-dynamodb"
+  source = "../modules/iam-dynamodb"
   role   = module.lambda_cognito_pre_token_generation.role_id
 
   tables = [{
-    arn          = aws_dynamodb_table.users.arn
+    arn          = var.ddb_table_arns.users
     enable_write = true
   }]
 }
