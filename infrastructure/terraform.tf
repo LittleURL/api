@@ -20,18 +20,12 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.22"
     }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 3.19"
-    }
   }
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Providers
 # ----------------------------------------------------------------------------------------------------------------------
-provider "cloudflare" {}
-
 provider "aws" {
   region = "us-east-1"
   default_tags { tags = var.aws_default_tags }

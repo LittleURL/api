@@ -1,13 +1,5 @@
 locals {
-  domain_api = "api.${local.domain}"
-}
-
-data "aws_ssm_parameter" "cloudflare_zone" {
-  name = "/${var.application}/cloudflare-zone"
-}
-
-data "cloudflare_zone" "default" {
-  zone_id = data.aws_ssm_parameter.cloudflare_zone.value
+  domain_api = "api.${aws_route53_zone.main.name}"
 }
 
 data "aws_ssm_parameter" "api_origin_cert" {
@@ -94,10 +86,17 @@ resource "aws_apigatewayv2_domain_name" "api" {
   domain_name = local.domain_api
 
   domain_name_configuration {
-    certificate_arn = data.aws_ssm_parameter.api_origin_cert.value
+    certificate_arn = aws_acm_certificate.api.arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
+
+  depends_on = [
+    aws_acm_certificate.api,
+    aws_route53_record.api_cert_validation[0],
+    aws_route53_record.api_cert_validation[1],
+    aws_route53_record.api_cert_validation[2],
+  ]
 }
 
 resource "aws_apigatewayv2_api_mapping" "api" {
@@ -107,12 +106,30 @@ resource "aws_apigatewayv2_api_mapping" "api" {
   api_mapping_key = "v1"
 }
 
-resource "cloudflare_record" "api" {
-  zone_id = local.zone_id
-  name    = "api"
-  type    = "CNAME"
-  value   = aws_apigatewayv2_domain_name.api.domain_name_configuration.0.target_domain_name
-  proxied = true
+resource "aws_acm_certificate" "api" {
+  domain_name       = local.domain_api
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "api_cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.api.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  zone_id         = aws_route53_zone.main.zone_id
+  name            = each.value.name
+  type            = each.value.type
+  ttl             = 60
+  records         = [each.value.record]
+  allow_overwrite = true
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

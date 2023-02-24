@@ -1,29 +1,40 @@
 locals {
-  email_from = "noreply@${local.domain}"
+  email_from = "noreply@${aws_route53_zone.main.name}"
+  spf_includes = join(" ", [
+    for s in concat(["amazonses.com"], var.email_spf_includes) : "include:${s}"
+  ])
 }
 
 resource "aws_ses_domain_identity" "default" {
-  domain = local.domain
+  domain = aws_route53_zone.main.name
 }
 
 resource "aws_ses_email_identity" "noreply" {
   email = local.email_from
 }
 
+resource "aws_route53_record" "ses_spf" {
+  zone_id = aws_route53_zone.main.zone_id
+  type    = "TXT"
+  name    = aws_route53_zone.main.name
+  ttl     = 10800
+  records = ["v=spf1 ${local.spf_includes} ~all"]
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Verification
 # ----------------------------------------------------------------------------------------------------------------------
-resource "cloudflare_record" "ses_verification" {
-  zone_id = local.zone_id
-  name    = "_amazonses"
+resource "aws_route53_record" "ses_verification" {
+  zone_id = aws_route53_zone.main.zone_id
   type    = "TXT"
-  value   = aws_ses_domain_identity.default.verification_token
+  name    = "_amazonses.${aws_route53_zone.main.name}"
   ttl     = 600
+  records = [aws_ses_domain_identity.default.verification_token]
 }
 
 resource "aws_ses_domain_identity_verification" "default" {
   domain     = aws_ses_domain_identity.default.id
-  depends_on = [cloudflare_record.ses_verification]
+  depends_on = [aws_route53_record.ses_verification]
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -33,12 +44,12 @@ resource "aws_ses_domain_dkim" "default" {
   domain = aws_ses_domain_identity.default.domain
 }
 
-resource "cloudflare_record" "ses_dkim" {
-  count = 3 // TODO: fix using for_each (TF race condition)
+resource "aws_route53_record" "ses_dkim" {
+  count = 3
 
-  zone_id = local.zone_id
-  name    = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}._domainkey"
+  zone_id = aws_route53_zone.main.zone_id
   type    = "CNAME"
-  value   = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}.dkim.amazonses.com"
   ttl     = 600
+  name    = "${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}._domainkey"
+  records = ["${element(aws_ses_domain_dkim.default.dkim_tokens, count.index)}.dkim.amazonses.com"]
 }

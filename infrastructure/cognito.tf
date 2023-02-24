@@ -1,5 +1,5 @@
 locals {
-  cognito_domain = "auth.${local.domain}"
+  cognito_domain = "auth.${aws_route53_zone.main.name}"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ resource "aws_cognito_user_pool_client" "dashboard" {
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid", "profile"]
 
-  callback_urls = concat(var.auth_callback_urls, ["https://${local.domain}"])
+  callback_urls = concat(var.auth_callback_urls, ["https://${aws_route53_zone.main.name}"])
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
