@@ -6,8 +6,12 @@ variable "prefix" {
   default = ""
 }
 
-variable "lumigo_token" {
+variable "application" {
   type = string
+}
+
+variable "lumigo_token" {
+  type    = string
   default = ""
 }
 
@@ -44,18 +48,20 @@ variable "cognito_pool_arn" {
 
 variable "ddb_table_arns" {
   type = object({
-    users      = string
-    user_roles = string
-    domains    = string
-    links      = string
+    users        = string
+    user_roles   = string
+    user_invites = string
+    domains      = string
+    links        = string
   })
 }
 
 variable "ddb_table_names" {
   type = object({
-    users      = string
-    user_roles = string
-    domains    = string
-    links      = string
+    users        = string
+    user_roles   = string
+    user_invites = string
+    domains      = string
+    links        = string
   })
 }

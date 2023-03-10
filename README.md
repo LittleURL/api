@@ -21,3 +21,22 @@ The reason for this is either due to needing abnormally high permissions, or bei
 
 All of the lambda functions have support for [Lumigo Tracing](https://lumigo.io/) built in, it will automatically
 be enabled/disabled based on the presence of the terraform variable `lumigo_token`.
+
+## Email templates
+
+The email templates are written using [MJML](https://mjml.io), as such they require compilation using a Node.js CLI.
+Because the generated HTML is required for embedding into some of the golang binaries, the MJML compilation is automatically
+handled whenever you run the deploy command in the Makefile.
+
+For testing purposes, and so you don't have to re-generate the templates constantly, you will need to run each build step
+manually.
+
+```shell
+# normally build everything
+make build
+
+# build templates once
+make build-templates
+# build functions as often as needed
+make build-functions
+```

@@ -12,7 +12,9 @@ locals {
     "LUMIGO_TRACER_TOKEN"         = var.lumigo_token
   }
 
-  envvar_default = merge(local.envvar_tables, local.envvar_lumigo)
+  envvar_default = merge(local.envvar_tables, local.envvar_lumigo, {
+    "APPNAME" = var.application
+  })
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

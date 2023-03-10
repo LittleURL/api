@@ -46,6 +46,11 @@ variable "architectures" {
 }
 
 variable "timeout" {
-  type    = string
-  default = "5"
+  type    = number
+  default = 5
+}
+
+variable "memory" {
+  type    = number
+  default = 128
 }

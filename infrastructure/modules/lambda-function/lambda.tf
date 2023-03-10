@@ -14,6 +14,7 @@ resource "aws_lambda_function" "default" {
   runtime       = "provided.al2"
   architectures = var.architectures
   timeout       = var.timeout
+  memory_size   = var.memory
 
   environment {
     variables = var.environment_variables
@@ -65,8 +66,7 @@ resource "aws_s3_object" "placeholder" {
     ignore_changes = [
       etag,
       tags,
-      tags_all,
-      version_id
+      tags_all
     ]
   }
 }

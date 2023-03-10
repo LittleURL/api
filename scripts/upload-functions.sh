@@ -2,11 +2,10 @@
 TF_DIR=./infrastructure/
 FN_DIR=./build/functions
 
-# get function bucket name (because it's suffixed witha  random ID)
+# get function bucket name (because it's suffixed with a random ID)
 FUNCTIONS_BUCKET=$(terraform -chdir=$TF_DIR output -raw functions_bucket)
 
 # assume the same role that terraform uses
-# aws sts assume-role --role-arn $(terraform -chdir=$TF_DIR output -raw aws_assume_role) --role-session-name "Makefile-Upload-Functions"
 AWSSESSION=$(aws sts assume-role --role-arn $(terraform -chdir=$TF_DIR output -raw aws_assume_role) --role-session-name "Makefile-Upload-Functions")
 export AWS_ACCESS_KEY_ID=$(echo $AWSSESSION | jq -r '.Credentials''.AccessKeyId')
 export AWS_SECRET_ACCESS_KEY=$(echo $AWSSESSION | jq -r '.Credentials''.SecretAccessKey')

@@ -1,13 +1,19 @@
 locals {
-  prefix      = "${var.application}-"
-  environment = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
-  aws_account = lookup(var.aws_accounts, local.environment)
+  prefix            = "${local.application_clean}-"
+  application_clean = lower(trimspace(var.application))
+  environment       = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
+  aws_account       = lookup(var.aws_accounts, local.environment)
 }
 
 variable "application" {
   type        = string
   description = "Application name for prefixing globally unique resource names"
-  default     = "littleurl"
+  default     = "LittleURL"
+
+  validation {
+    condition     = length(regex("^[\\w-]{1,64}$", var.application)) > 0
+    error_message = "Application name value can only contain up to 64 alpha-numerical characters"
+  }
 }
 
 variable "environments" {
@@ -26,7 +32,7 @@ variable "domain" {
 }
 
 variable "email_spf_includes" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 

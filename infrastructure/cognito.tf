@@ -36,8 +36,9 @@ resource "aws_cognito_user_pool" "main" {
   }
 
   lambda_config {
-    pre_token_generation = module.functions.function_arn_cognito_pre_token_gen
-    post_authentication  = module.functions.function_arn_cognito_post_authentication
+    pre_token_generation = module.functions.cognito_function_arns.pre_token_gen
+    post_authentication  = module.functions.cognito_function_arns.post_authentication
+    custom_message       = module.functions.cognito_function_arns.custom_message
   }
 }
 
@@ -60,19 +61,19 @@ resource "aws_cognito_user_pool_client" "dashboard" {
 # SSM Params
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_ssm_parameter" "cognito_pool_id" {
-  name  = "/${var.application}/cognito/pool-id"
+  name  = "/${local.application_clean}/cognito/pool-id"
   type  = "String"
   value = aws_cognito_user_pool.main.id
 }
 
 resource "aws_ssm_parameter" "cognito_password_polic" {
-  name  = "/${var.application}/cognito/password-policy"
+  name  = "/${local.application_clean}/cognito/password-policy"
   type  = "String"
   value = jsonencode(aws_cognito_user_pool.main.password_policy[0])
 }
 
 resource "aws_ssm_parameter" "cognito_client_dashboard" {
-  name  = "/${var.application}/cognito/client-dashboard"
+  name  = "/${local.application_clean}/cognito/client-dashboard"
   type  = "String"
   value = aws_cognito_user_pool_client.dashboard.id
 }

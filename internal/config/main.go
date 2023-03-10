@@ -11,6 +11,7 @@ type Config struct {
 	Queues        queues
 	Tables        tables
 	CognitoPoolId string
+	AppName       string
 }
 
 type queues struct{}

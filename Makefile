@@ -32,9 +32,9 @@ lint-tf-fix: ## Auto fix terraform linting errors
 	$(TF) fmt -recursive
 
 ##@ Build
-.PHONY: build build-functions
+.PHONY: build build-functions build-templates
 
-build: build-functions ## Build everything
+build: build-templates build-functions ## Build everything
 
 build-functions: ## Build lambda functions
 	@echo "Building lambda functions"
@@ -43,6 +43,11 @@ build-functions: ## Build lambda functions
 	cd ./build/functions \
 		&& for i in *; do mv "$$i" bootstrap && zip "$$i.zip" bootstrap; done \
 		&& find . -type f ! -name '*.zip' -delete
+
+build-templates: ## Compile MJML to HTML
+	@echo "Compiling Cognito MJML"
+	cd ./functions/cognito-custom-message/templates/ && \
+	for i in *.mjml; do ../../../node_modules/.bin/mjml $$i -o $${i%.mjml*}.html; done
 
 ##@ Deployment
 .PHONY: tf-init tf-plan tf-apply

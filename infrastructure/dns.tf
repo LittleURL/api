@@ -18,7 +18,7 @@ resource "aws_route53_record" "api" {
 # SSM Params
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_ssm_parameter" "zone_id" {
-  name  = "/${var.application}/zone-id"
+  name  = "/${local.application_clean}/zone-id"
   type  = "String"
   value = aws_route53_zone.main.zone_id
 }

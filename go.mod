@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.9.7
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.4.13
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.15.9
+	github.com/google/uuid v1.3.0
 	github.com/jinzhu/configor v1.2.1
 	github.com/lumigo-io/lumigo-go-tracer v0.4.1
 	go.uber.org/zap v1.21.0
@@ -16,7 +17,6 @@ require (
 require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
@@ -65,7 +65,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/exp v0.0.0-20221026004748-78e5e7837ae6
 	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
