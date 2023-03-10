@@ -1,6 +1,6 @@
 locals {
   prefix            = "${local.application_clean}-"
-  application_clean = lower(trimspace(var.application))
+  application_clean = replace(lower(trimspace(var.application)), "[^\\w-]", "-")
   environment       = contains(var.environments, terraform.workspace) ? terraform.workspace : "dev"
   aws_account       = lookup(var.aws_accounts, local.environment)
 }
@@ -11,8 +11,8 @@ variable "application" {
   default     = "LittleURL"
 
   validation {
-    condition     = length(regex("^[\\w-]{1,64}$", var.application)) > 0
-    error_message = "Application name value can only contain up to 64 alpha-numerical characters"
+    condition     = length(var.application) <= 64
+    error_message = "Application name can only contain up to 64 characters"
   }
 }
 

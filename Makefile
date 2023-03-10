@@ -1,5 +1,6 @@
 # binary aliases
 TF = terraform -chdir=./infrastructure/
+SHELL:=/bin/bash -O globstar
 
 # variables
 PROJECT=auth
@@ -45,9 +46,9 @@ build-functions: ## Build lambda functions
 		&& find . -type f ! -name '*.zip' -delete
 
 build-templates: ## Compile MJML to HTML
-	@echo "Compiling Cognito MJML"
-	cd ./functions/cognito-custom-message/templates/ && \
-	for i in *.mjml; do ../../../node_modules/.bin/mjml $$i -o $${i%.mjml*}.html; done
+	@echo "Compiling MJML"
+	cd ./internal/templates && \
+	for i in **/*.mjml; do ../../node_modules/.bin/mjml $$i -o $${i%.mjml*}.html; done
 
 ##@ Deployment
 .PHONY: tf-init tf-plan tf-apply

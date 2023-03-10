@@ -1,23 +1,19 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"embed"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"gitlab.com/deltabyte_/littleurl/api/internal/templates"
 )
 
-//go:embed templates/*.html
-var templates embed.FS
-
 type templateAttributes struct {
+	Subject       string
 	Code        string
 	Username    string
 	Application string
@@ -25,13 +21,13 @@ type templateAttributes struct {
 
 type templateConfig struct {
 	FileName string
-	Title    string
+	Subject    string
 }
 
 var templateConfigs = map[string]templateConfig{
 	"ForgotPassword": {
-		FileName: "templates/ForgotPassword.html",
-		Title:    "Forgot Password",
+		FileName: "ForgotPassword.html",
+		Subject:    "Forgot Password",
 	},
 }
 
@@ -46,18 +42,11 @@ func Handler(ctx context.Context, event *events.CognitoEventUserPoolsCustomMessa
 		return event, nil
 	}
 
-	// load file
-	rawTemplate, err := template.ParseFS(templates, templateConfig.FileName)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		return event, err
-	}
-
 	// load template
-	var template bytes.Buffer
-	err = rawTemplate.Execute(&template, &templateAttributes{
+	template, err := templates.RenderCognitoEmail(templateConfig.FileName, &templateAttributes{
 		Application: cfg.AppName,
 		Code:        event.Request.CodeParameter,
+		Subject:       templateConfig.Subject,
 		Username:    event.Request.UsernameParameter,
 	})
 	if err != nil {
@@ -65,7 +54,8 @@ func Handler(ctx context.Context, event *events.CognitoEventUserPoolsCustomMessa
 		return event, err
 	}
 
-	event.Response.EmailMessage = template.String()
+	event.Response.EmailMessage = template
+	event.Response.EmailSubject = templateConfig.Subject
 	return event, nil
 }
 

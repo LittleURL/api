@@ -1,5 +1,6 @@
 locals {
-  email_from = "noreply@${aws_route53_zone.main.name}"
+  email_from          = "noreply@${aws_route53_zone.main.name}"
+  email_from_friendly = "${var.application} <${local.email_from}>"
   spf_includes = join(" ", [
     for s in concat(["amazonses.com"], var.email_spf_includes) : "include:${s}"
   ])

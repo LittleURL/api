@@ -31,7 +31,7 @@ resource "aws_cognito_user_pool" "main" {
 
   email_configuration {
     email_sending_account = "DEVELOPER"
-    from_email_address    = local.email_from
+    from_email_address    = local.email_from_friendly
     source_arn            = aws_ses_email_identity.noreply.arn
   }
 
