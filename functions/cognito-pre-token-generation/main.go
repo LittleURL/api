@@ -51,6 +51,7 @@ func Handler(ctx context.Context, event *events.CognitoEventUserPoolsPreTokenGen
 		Id:       userId,
 		Name:     userAttributes["name"],
 		Username: *res.Users[0].Username,
+		Nickname: userAttributes["nickname"],
 		Picture: userAttributes["picture"],
 	}
 	ddbUser, err := user.MarshalDynamoAV()

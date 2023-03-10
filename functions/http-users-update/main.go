@@ -16,7 +16,7 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
 )
 
-type UpdateDomainRequest struct {
+type UpdateUsersRequest struct {
 	RoleName *string `json:"role_name" validate:"required,oneof=admin editor viewer nobody"`
 }
 
@@ -45,7 +45,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// parse body
-	reqBody := &UpdateDomainRequest{}
+	reqBody := &UpdateUsersRequest{}
 	if err := json.Unmarshal([]byte(event.Body), reqBody); err != nil {
 		return helpers.GatewayErrorResponse(500, "Failed to unmarshal body"), err
 	}

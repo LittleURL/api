@@ -64,15 +64,6 @@ func Handler(ctx context.Context, event *events.CognitoEventUserPoolsPostAuthent
 		})
 	}
 
-	// nickname
-	nickname, nicknameExists := userAttributes["nickname"]
-	if nicknameExists {
-		updatedAttributes = append(updatedAttributes, cognitoTypes.AttributeType{
-			Name:  aws.String("nickname"),
-			Value: aws.String(gravatarUrl(nickname)),
-		})
-	}
-
 	// update the user's attributes
 	_, err = cognitoClient.AdminUpdateUserAttributes(ctx, &cognito.AdminUpdateUserAttributesInput{
 		UserPoolId:     &app.Cfg.CognitoPoolId,
