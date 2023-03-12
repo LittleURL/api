@@ -1,5 +1,6 @@
 locals {
-  cognito_domain = "auth.${aws_route53_zone.main.name}"
+  cognito_domain   = "auth.${aws_route53_zone.main.name}"
+  dashboard_domain = "dash.${aws_route53_zone.main.name}"
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -32,7 +33,7 @@ resource "aws_cognito_user_pool" "main" {
   email_configuration {
     email_sending_account = "DEVELOPER"
     from_email_address    = local.email_from_friendly
-    source_arn            = aws_ses_email_identity.noreply.arn
+    source_arn            = aws_sesv2_email_identity.noreply.arn
   }
 
   lambda_config {
@@ -54,7 +55,10 @@ resource "aws_cognito_user_pool_client" "dashboard" {
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid", "profile"]
 
-  callback_urls = concat(var.auth_callback_urls, ["https://${aws_route53_zone.main.name}"])
+  callback_urls = concat(var.auth_callback_urls, [
+    "https://${aws_route53_zone.main.name}",
+    "https://${local.dashboard_domain}"
+  ])
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

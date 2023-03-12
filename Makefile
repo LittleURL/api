@@ -51,7 +51,9 @@ build-templates: ## Compile MJML to HTML
 	for i in **/*.mjml; do ../../node_modules/.bin/mjml $$i -o $${i%.mjml*}.html; done
 
 ##@ Deployment
-.PHONY: tf-init tf-plan tf-apply
+.PHONY: tf-init tf-plan tf-apply deploy
+
+deploy: tf-plan tf-apply build upload-functions ## Full deployment
 
 upload-functions: ## Upload functions to S3
 	@echo "Uploading lambda deployment packages"
