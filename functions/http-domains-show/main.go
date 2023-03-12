@@ -6,12 +6,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"gitlab.com/deltabyte_/littleurl/api/internal/repositories"
 )
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
@@ -21,6 +19,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		fmt.Print("Failed to initialize app")
 		panic(err)
 	}
+	domainsRepo := repositories.NewDomainsRepository(app)
 
 	// extract the user's ID
 	userId, exists := event.RequestContext.Authorizer.JWT.Claims["sub"]
@@ -41,20 +40,9 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// get domain
-	res, err := app.DDBClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
-		TableName: &app.Cfg.Tables.Domains,
-		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{
-				Value: domainId,
-			},
-		},
-	})
-	if err != nil || res == nil || res.Item == nil {
-		return helpers.GatewayErrorResponse(404, "Domain not found"), err
-	}
-	domain := &entities.Domain{}
-	if err := domain.UnmarshalDynamoAV(res.Item); err != nil {
-		panic(err) // TODO: gracefully handle unmarshalling error
+	domain, reqErr := domainsRepo.Find(domainId)
+	if reqErr != nil {
+		return reqErr.GatewayResponse(), reqErr.Err
 	}
 
 	// set current user's role

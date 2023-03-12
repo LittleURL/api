@@ -1,9 +1,10 @@
 locals {
   envvar_tables = {
-    "TABLES_DOMAINS"   = var.ddb_table_names.domains
-    "TABLES_USERROLES" = var.ddb_table_names.user_roles
-    "TABLES_USERS"     = var.ddb_table_names.users
-    "TABLES_LINKS"     = var.ddb_table_names.links
+    "Tables_Domains"     = var.ddb_table_names.domains
+    "Tables_Users"       = var.ddb_table_names.users
+    "Tables_UserRoles"   = var.ddb_table_names.user_roles
+    "Tables_UserInvites" = var.ddb_table_names.user_invites
+    "Tables_Links"       = var.ddb_table_names.links
   }
 
 
@@ -12,9 +13,8 @@ locals {
     "LUMIGO_TRACER_TOKEN"         = var.lumigo_token
   }
 
-  envvar_default = merge(local.envvar_tables, local.envvar_lumigo, {
-    "APPNAME" = var.application
-  })
+  // merge env vars and convert keys to uppercase (required by configor)
+  envvar_default = { for k, v in merge(local.envvar_tables, local.envvar_lumigo, var.environment) : upper(k) => v }
 }
 
 # ----------------------------------------------------------------------------------------------------------------------

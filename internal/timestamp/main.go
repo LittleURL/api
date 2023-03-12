@@ -20,3 +20,7 @@ func (ts Timestamp) String() string {
 func (ts *Timestamp) Touch() {
 	*ts = Timestamp(time.Now())
 }
+
+func (ts *Timestamp) Until() time.Duration {
+	return time.Until(time.Time(*ts))
+}

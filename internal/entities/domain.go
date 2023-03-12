@@ -3,6 +3,7 @@ package entities
 import (
 	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/google/uuid"
 	"gitlab.com/deltabyte_/littleurl/api/internal/timestamp"
 )
 
@@ -23,6 +24,7 @@ type Domain struct {
 
 func NewDomain() *Domain {
 	return &Domain{
+		Id: uuid.NewString(),
 		CreatedAt: timestamp.Now(),
 		UpdatedAt: timestamp.Now(),
 	}

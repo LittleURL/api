@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
+	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 )
 
 func GatewayJsonResponse(code int, body interface{}) (*events.APIGatewayV2HTTPResponse, error) {
@@ -27,18 +28,12 @@ func GatewayJsonResponse(code int, body interface{}) (*events.APIGatewayV2HTTPRe
 	}, nil
 }
 
-type ErrorResponseBody struct {
-	StatusCode int         `json:"code"`
-	Message    string      `json:"message"`
-	Details    interface{} `json:"details"`
-}
-
 func GatewayErrorResponse(code int, message string) *events.APIGatewayV2HTTPResponse {
 	if message == "" {
 		message = http.StatusText(code)
 	}
 
-	bodyBytes, _ := json.Marshal(ErrorResponseBody{
+	bodyBytes, _ := json.Marshal(application.ErrorResponseBody{
 		StatusCode: code,
 		Message:    message,
 	})

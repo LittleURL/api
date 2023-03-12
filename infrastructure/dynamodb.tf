@@ -67,6 +67,35 @@ resource "aws_dynamodb_table" "user_roles" {
   }
 }
 
+resource "aws_dynamodb_table" "user_invites" {
+  name         = "${local.prefix}user-invites"
+  billing_mode = "PAY_PER_REQUEST"
+
+  hash_key = "id"
+
+  ttl {
+    enabled        = true
+    attribute_name = "expires_at"
+  }
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  attribute {
+    name = "domain_id"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "domain-invites"
+    hash_key        = "domain_id"
+    range_key       = "id"
+    projection_type = "ALL"
+  }
+}
+
 # This mostly exists to make querying easier because Cognito's APIs are dogshit
 resource "aws_dynamodb_table" "users" {
   name         = "${local.prefix}users"
@@ -79,4 +108,3 @@ resource "aws_dynamodb_table" "users" {
     type = "S"
   }
 }
-

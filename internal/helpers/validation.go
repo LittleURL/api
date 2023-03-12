@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/go-playground/validator/v10"
+	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 )
 
 func GatewayValidationResponse(validationError error) *events.APIGatewayV2HTTPResponse {
@@ -15,7 +16,7 @@ func GatewayValidationResponse(validationError error) *events.APIGatewayV2HTTPRe
 
 	// marshal body
 	validationErrors := validationError.Error()
-	bodyBytes, _ := json.Marshal(ErrorResponseBody{
+	bodyBytes, _ := json.Marshal(application.ErrorResponseBody{
 		StatusCode: 400,
 		Message:    "ValidationFailed",
 		Details:    validationErrors,

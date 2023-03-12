@@ -6,8 +6,9 @@ variable "prefix" {
   default = ""
 }
 
-variable "application" {
-  type = string
+variable "environment" {
+  type    = map(string)
+  default = {}
 }
 
 variable "lumigo_token" {
@@ -15,6 +16,13 @@ variable "lumigo_token" {
   default = ""
 }
 
+variable "email_allowed_from_addresses" {
+  type = list(string)
+}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# AWS
+# ----------------------------------------------------------------------------------------------------------------------
 variable "aws_region" {
   type = string
 }
@@ -23,9 +31,6 @@ variable "aws_account" {
   type = string
 }
 
-# ----------------------------------------------------------------------------------------------------------------------
-# AWS
-# ----------------------------------------------------------------------------------------------------------------------
 variable "gateway_id" {
   type = string
 }
