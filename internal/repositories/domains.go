@@ -22,8 +22,8 @@ func NewDomainsRepository(app *application.Application) *DomainsRepository {
 	}
 }
 
-func (repo *DomainsRepository) Find(id entities.DomainID) (*entities.Domain, *application.RequestError) {
-	res, err := repo.DDBClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
+func (repo *DomainsRepository) Find(ctx context.Context, id entities.DomainID) (*entities.Domain, *application.RequestError) {
+	res, err := repo.DDBClient.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: repo.TableName,
 		Key: map[string]types.AttributeValue{
 			"id": &types.AttributeValueMemberS{

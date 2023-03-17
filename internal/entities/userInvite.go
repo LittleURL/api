@@ -9,13 +9,20 @@ import (
 	"gitlab.com/deltabyte_/littleurl/api/internal/timestamp"
 )
 
-type UserInviteID = string
+func NewUserInvite() *UserInvite {
+	return &UserInvite{
+		ID:        uuid.NewString(),
+		CreatedAt: timestamp.Now(),
+		ExpiresAt: timestamp.Timestamp(time.Now().Add(time.Hour * 24 * 7)),
+	}
+}
 
 /**
  * entity
  */
+type UserInviteID = string
 type UserInvite struct {
-	Id        UserInviteID        `json:"id"         dynamodbav:"id"`
+	ID        UserInviteID        `json:"id"         dynamodbav:"id"`
 	Email     string              `json:"email"      dynamodbav:"email"`
 	Role      string              `json:"role"       dynamodbav:"role"`
 	DomainID  DomainID            `json:"domain_id"  dynamodbav:"domain_id"`
@@ -31,13 +38,10 @@ func (userInvite *UserInvite) UnmarshalDynamoAV(item map[string]ddbTypes.Attribu
 	return av.UnmarshalMap(item, userInvite)
 }
 
-func NewUserInvite() *UserInvite {
-	return &UserInvite{
-		Id:        uuid.NewString(),
-		CreatedAt: timestamp.Now(),
-		ExpiresAt: timestamp.Timestamp(time.Now().Add(time.Hour * 24 * 7)),
-	}
+func (userInvite *UserInvite) Expired() bool {
+	return userInvite.ExpiresAt.Until().Nanoseconds() == 0
 }
+
 
 /**
  * slice of entities

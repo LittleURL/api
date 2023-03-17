@@ -40,7 +40,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// get domain
-	domain, reqErr := domainsRepo.Find(domainId)
+	domain, reqErr := domainsRepo.Find(ctx, domainId)
 	if reqErr != nil {
 		return reqErr.GatewayResponse(), reqErr.Err
 	}

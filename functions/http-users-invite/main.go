@@ -63,7 +63,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// get domain
-	domain, reqErr := domainsRepo.Find(domainId)
+	domain, reqErr := domainsRepo.Find(ctx, domainId)
 	if reqErr != nil {
 		return reqErr.GatewayResponse(), reqErr.Err
 	}
@@ -94,7 +94,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	emailHtml, err := templates.RenderEmail("InviteUser.html", map[string]string{
 		"Application": app.Cfg.AppName,
 		"Domain":      domain.Domain,
-		"Link":        fmt.Sprintf("https://%s/invite/%s", app.Cfg.DashboardDomain, userInvite.Id),
+		"Link":        fmt.Sprintf("https://%s/invite/%s", app.Cfg.DashboardDomain, userInvite.ID),
 		"Expiry":      fmt.Sprintf("%.0f days", userInvite.ExpiresAt.Until().Hours() / 24),
 	})
 	if err != nil {
