@@ -22,6 +22,7 @@ type Link struct {
 	Target    string              `json:"target"     dynamodbav:"target"`
 	CreatedAt timestamp.Timestamp `json:"created_at" dynamodbav:"created_at"`
 	UpdatedAt timestamp.Timestamp `json:"updated_at" dynamodbav:"updated_at"`
+	ExpiresAt timestamp.Timestamp `json:"expires_at" dynamodbav:"expires_at"`
 }
 
 func NewLink() *Link {

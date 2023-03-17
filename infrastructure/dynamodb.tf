@@ -1,3 +1,7 @@
+locals {
+  ddb_prevent_destroy = true
+}
+
 resource "aws_dynamodb_table" "domains" {
   name         = "${local.prefix}domains"
   billing_mode = "PAY_PER_REQUEST"
@@ -32,10 +36,19 @@ resource "aws_dynamodb_table" "links" {
     type = "N"
   }
 
+  ttl {
+    attribute_name = "expires_at"
+    enabled        = true
+  }
+
   local_secondary_index {
     name            = "updated"
     range_key       = "updated_at"
     projection_type = "ALL"
+  }
+
+  lifecycle {
+    prevent_destroy = local.ddb_prevent_destroy
   }
 }
 
@@ -64,6 +77,10 @@ resource "aws_dynamodb_table" "user_roles" {
     hash_key        = "user_id"
     range_key       = "domain_id"
     projection_type = "ALL"
+  }
+
+  lifecycle {
+    prevent_destroy = local.ddb_prevent_destroy
   }
 }
 
@@ -94,6 +111,10 @@ resource "aws_dynamodb_table" "user_invites" {
     range_key       = "id"
     projection_type = "ALL"
   }
+
+  lifecycle {
+    prevent_destroy = local.ddb_prevent_destroy
+  }
 }
 
 # This mostly exists to make querying easier because Cognito's APIs are dogshit
@@ -106,5 +127,9 @@ resource "aws_dynamodb_table" "users" {
   attribute {
     name = "id"
     type = "S"
+  }
+
+  lifecycle {
+    prevent_destroy = local.ddb_prevent_destroy
   }
 }
