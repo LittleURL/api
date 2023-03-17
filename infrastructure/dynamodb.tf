@@ -3,8 +3,9 @@ locals {
 }
 
 resource "aws_dynamodb_table" "domains" {
-  name         = "${local.prefix}domains"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.prefix}domains"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.ddb_prevent_destroy
 
   hash_key = "id"
 
@@ -15,8 +16,9 @@ resource "aws_dynamodb_table" "domains" {
 }
 
 resource "aws_dynamodb_table" "links" {
-  name         = "${local.prefix}links"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.prefix}links"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.ddb_prevent_destroy
 
   hash_key  = "domain_id"
   range_key = "uri"
@@ -56,8 +58,9 @@ resource "aws_dynamodb_table" "links" {
 # Auth
 # ----------------------------------------------------------------------------------------------------------------------
 resource "aws_dynamodb_table" "user_roles" {
-  name         = "${local.prefix}user-roles"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.prefix}user-roles"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.ddb_prevent_destroy
 
   hash_key  = "domain_id"
   range_key = "user_id"
@@ -85,8 +88,9 @@ resource "aws_dynamodb_table" "user_roles" {
 }
 
 resource "aws_dynamodb_table" "user_invites" {
-  name         = "${local.prefix}user-invites"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.prefix}user-invites"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.ddb_prevent_destroy
 
   hash_key = "id"
 
@@ -119,8 +123,9 @@ resource "aws_dynamodb_table" "user_invites" {
 
 # This mostly exists to make querying easier because Cognito's APIs are dogshit
 resource "aws_dynamodb_table" "users" {
-  name         = "${local.prefix}users"
-  billing_mode = "PAY_PER_REQUEST"
+  name                        = "${local.prefix}users"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = local.ddb_prevent_destroy
 
   hash_key = "id"
 
