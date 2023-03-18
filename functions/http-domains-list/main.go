@@ -56,21 +56,27 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(500, "Failed to parse domain permissions"), err
 	}
 
+	// filter roles to only those with real permissions
+	allowedRoles := entities.UserRoles{}
+	for _, userRole := range userRoles {
+		if userRole.Role().DomainRead() {
+			allowedRoles = append(allowedRoles, userRole)
+		}
+	}
+
 	// shortcut rest of function if the user has zero roles
-	if len(userRoles) < 1 {
+	if len(allowedRoles) < 1 {
 		return helpers.GatewayJsonResponse(200, make([]string, 0))
 	}
 
 	// extract domain IDs
 	domainKeys := []map[string]types.AttributeValue{}
-	for _, userRole := range userRoles {
-		if userRole.Role().DomainRead() {
-			domainKeys = append(domainKeys, map[string]types.AttributeValue{
-				"id": &types.AttributeValueMemberS{
-					Value: userRole.DomainID,
-				},
-			})
-		}
+	for _, userRole := range allowedRoles {
+		domainKeys = append(domainKeys, map[string]types.AttributeValue{
+			"id": &types.AttributeValueMemberS{
+				Value: userRole.DomainID,
+			},
+		})
 	}
 
 	// get domains
