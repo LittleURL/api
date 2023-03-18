@@ -1,11 +1,7 @@
-locals {
-  ddb_prevent_destroy = true
-}
-
 resource "aws_dynamodb_table" "domains" {
   name                        = "${local.prefix}domains"
   billing_mode                = "PAY_PER_REQUEST"
-  deletion_protection_enabled = local.ddb_prevent_destroy
+  deletion_protection_enabled = true
 
   hash_key = "id"
 
@@ -13,12 +9,16 @@ resource "aws_dynamodb_table" "domains" {
     name = "id"
     type = "S"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_dynamodb_table" "links" {
   name                        = "${local.prefix}links"
   billing_mode                = "PAY_PER_REQUEST"
-  deletion_protection_enabled = local.ddb_prevent_destroy
+  deletion_protection_enabled = true
 
   hash_key  = "domain_id"
   range_key = "uri"
@@ -50,7 +50,7 @@ resource "aws_dynamodb_table" "links" {
   }
 
   lifecycle {
-    prevent_destroy = local.ddb_prevent_destroy
+    prevent_destroy = true
   }
 }
 
@@ -60,7 +60,7 @@ resource "aws_dynamodb_table" "links" {
 resource "aws_dynamodb_table" "user_roles" {
   name                        = "${local.prefix}user-roles"
   billing_mode                = "PAY_PER_REQUEST"
-  deletion_protection_enabled = local.ddb_prevent_destroy
+  deletion_protection_enabled = true
 
   hash_key  = "domain_id"
   range_key = "user_id"
@@ -83,14 +83,14 @@ resource "aws_dynamodb_table" "user_roles" {
   }
 
   lifecycle {
-    prevent_destroy = local.ddb_prevent_destroy
+    prevent_destroy = true
   }
 }
 
 resource "aws_dynamodb_table" "user_invites" {
   name                        = "${local.prefix}user-invites"
   billing_mode                = "PAY_PER_REQUEST"
-  deletion_protection_enabled = local.ddb_prevent_destroy
+  deletion_protection_enabled = true
 
   hash_key = "id"
 
@@ -117,7 +117,7 @@ resource "aws_dynamodb_table" "user_invites" {
   }
 
   lifecycle {
-    prevent_destroy = local.ddb_prevent_destroy
+    prevent_destroy = true
   }
 }
 
@@ -125,7 +125,7 @@ resource "aws_dynamodb_table" "user_invites" {
 resource "aws_dynamodb_table" "users" {
   name                        = "${local.prefix}users"
   billing_mode                = "PAY_PER_REQUEST"
-  deletion_protection_enabled = local.ddb_prevent_destroy
+  deletion_protection_enabled = true
 
   hash_key = "id"
 
@@ -135,6 +135,6 @@ resource "aws_dynamodb_table" "users" {
   }
 
   lifecycle {
-    prevent_destroy = local.ddb_prevent_destroy
+    prevent_destroy = true
   }
 }

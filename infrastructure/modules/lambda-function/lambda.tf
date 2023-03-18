@@ -1,3 +1,7 @@
+locals {
+  function_s3_key = coalesce(var.source_key, "${var.name}.zip")
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Function
 # ----------------------------------------------------------------------------------------------------------------------
@@ -8,7 +12,7 @@ resource "aws_lambda_function" "default" {
   # handler
   handler   = "bootstrap"
   s3_bucket = var.source_bucket
-  s3_key    = coalesce(var.source_key, "${var.name}.zip")
+  s3_key    = local.function_s3_key
 
   # runtime
   runtime       = "provided.al2"
@@ -18,6 +22,12 @@ resource "aws_lambda_function" "default" {
 
   environment {
     variables = var.environment_variables
+  }
+
+  tags = {
+    "littleurl-autodeploy-s3-bucket" = var.source_bucket
+    "littleurl-autodeploy-s3-key" = local.function_s3_key
+    "littleurl-autodeploy-enabled" = var.enable_autodeploy
   }
 
   depends_on = [

@@ -8,8 +8,9 @@ locals {
 module "lambda_cognito_pre_token_generation" {
   source = "../modules/lambda-function"
 
-  aws_account = var.aws_account
-  aws_region  = var.aws_region
+  aws_account       = var.aws_account
+  aws_region        = var.aws_region
+  enable_autodeploy = var.enable_autodeploy
 
   name          = local.function_name_cognito_pre_token_gen
   source_key    = "cognito-pre-token-generation.zip"

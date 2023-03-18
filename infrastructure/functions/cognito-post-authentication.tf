@@ -8,8 +8,9 @@ locals {
 module "lambda_cogntio_post_authentication" {
   source = "../modules/lambda-function"
 
-  aws_account = var.aws_account
-  aws_region  = var.aws_region
+  aws_account       = var.aws_account
+  aws_region        = var.aws_region
+  enable_autodeploy = var.enable_autodeploy
 
   name          = local.function_name_cognito_post_authentication
   source_key    = "cogntio-post-authentication.zip"

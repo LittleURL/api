@@ -3,7 +3,7 @@ TF = terraform -chdir=./infrastructure/
 SHELL:=/bin/bash -O globstar
 
 # variables
-PROJECT=auth
+PROJECT=littleurl-api
 ENVIRONMENT=dev
 
 ##@ Dependencies
@@ -51,14 +51,14 @@ build-templates: ## Compile MJML to HTML
 	for i in **/*.mjml; do ../../node_modules/.bin/mjml $$i -o $${i%.mjml*}.html; done
 
 ##@ Deployment
-.PHONY: tf-init tf-plan tf-apply deploy
+.PHONY: deploy upload-functions tf-init tf-plan tf-apply
 
 deploy: tf-plan tf-apply build upload-functions ## Full deployment
 
 upload-functions: ## Upload functions to S3
 	@echo "Uploading lambda deployment packages"
 	$(TF) workspace select ${ENVIRONMENT}
-	bash scripts/upload-functions.sh
+	aws s3 cp ./build/functions s3://$$($(TF) output -raw functions_bucket) --recursive
 
 tf-init: ## Initialise terraform
 	@echo "Initialising terraform"

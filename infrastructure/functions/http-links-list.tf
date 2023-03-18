@@ -4,8 +4,9 @@
 module "lambda_http_links_list" {
   source = "../modules/lambda-function"
 
-  aws_account = var.aws_account
-  aws_region  = var.aws_region
+  aws_account       = var.aws_account
+  aws_region        = var.aws_region
+  enable_autodeploy = var.enable_autodeploy
 
   name          = "${var.prefix}http-links-list"
   source_key    = "http-links-list.zip"

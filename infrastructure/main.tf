@@ -1,10 +1,11 @@
 module "functions" {
   source = "./functions"
 
-  prefix       = local.prefix
-  lumigo_token = var.lumigo_token
-  aws_account  = local.aws_account
-  aws_region   = var.aws_region
+  prefix            = local.prefix
+  lumigo_token      = var.lumigo_token
+  aws_account       = local.aws_account
+  aws_region        = var.aws_region
+  enable_autodeploy = var.function_autodeploy
 
   gateway_id                   = aws_apigatewayv2_api.api.id
   gateway_execution_arn        = aws_apigatewayv2_api.api.execution_arn
@@ -34,4 +35,15 @@ module "functions" {
     domains      = aws_dynamodb_table.domains.id
     links        = aws_dynamodb_table.links.id
   }
+}
+
+module "functions_autodeploy" {
+  count  = var.function_autodeploy ? 1 : 0
+  source = "./modules/lambda-autodeploy"
+
+  name                 = "${local.prefix}s3-autodeploy"
+  bucket               = module.functions.functions_bucket
+  aws_account          = local.aws_account
+  aws_region           = var.aws_region
+  function_name_prefix = local.prefix
 }
