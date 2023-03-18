@@ -12,12 +12,14 @@ module "lambda_http_invites_accept" {
   source_key    = "http-invites-accept.zip"
   source_bucket = aws_s3_bucket.functions.id
 
-  environment_variables = merge(local.envvar_default, {})
+  environment_variables = merge(local.envvar_default, {
+    "COGNITOPOOLID" = var.cognito_pool_id
+  })
 }
 
 module "gateway_lambda_http_invites_accept" {
   source = "../modules/lambda-gateway"
-  method = "POST"
+  method = "GET"
   path   = "/invites/{inviteId}"
 
   function_name       = module.lambda_http_invites_accept.function_name
@@ -39,7 +41,7 @@ module "lambda_http_invites_accept_dynamodb" {
   tables = [
     {
       arn           = var.ddb_table_arns.user_invites
-      enable_write  = true
+      enable_read   = true
       enable_delete = true
     },
     {

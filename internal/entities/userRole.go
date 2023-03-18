@@ -4,6 +4,7 @@ import (
 	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
+	"gitlab.com/deltabyte_/littleurl/api/internal/timestamp"
 )
 
 func UserRoleKey(domainId DomainID, userId UserID) map[string]ddbTypes.AttributeValue {
@@ -13,13 +14,22 @@ func UserRoleKey(domainId DomainID, userId UserID) map[string]ddbTypes.Attribute
 	}
 }
 
+func NewUserRole() *UserRole {
+	return &UserRole{
+		CreatedAt: timestamp.Now(),
+		UpdatedAt: timestamp.Now(),
+	}
+}
+
 /**
  * entity
  */
 type UserRole struct {
-	DomainID DomainID `json:"domain_id" dynamodbav:"domain_id"`
-	UserID   string   `json:"user_id"   dynamodbav:"user_id"`
-	RoleName string   `json:"role_name" dynamodbav:"role_name"`
+	DomainID  DomainID            `json:"domain_id"  dynamodbav:"domain_id"`
+	UserID    string              `json:"user_id"    dynamodbav:"user_id"`
+	RoleName  string              `json:"role_name"  dynamodbav:"role_name"`
+	CreatedAt timestamp.Timestamp `json:"created_at" dynamodbav:"created_at"`
+	UpdatedAt timestamp.Timestamp `json:"updated_at" dynamodbav:"updated_at"`
 }
 
 func (userRole *UserRole) MarshalDynamoAV() (map[string]ddbTypes.AttributeValue, error) {

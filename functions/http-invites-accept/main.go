@@ -67,14 +67,13 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(403, "Invalid invite"), nil
 	}
 
-	// create entity
-	userRole := &entities.UserRole{
-		DomainID: invite.DomainID,
-		UserID: currentUserId,
-		RoleName: invite.Role,
-	}
-	if err := rolesRepo.Insert(ctx, userRole); err != nil {
-		return helpers.GatewayErrorResponse(500, "Failed to save UserRole"), err
+	// create role
+	userRole := entities.NewUserRole()
+	userRole.DomainID = invite.DomainID
+	userRole.UserID = currentUserId
+	userRole.RoleName = invite.Role
+	if reqErr := rolesRepo.Create(ctx, userRole); reqErr != nil {
+		return reqErr.GatewayResponse(), reqErr.Err
 	}
 
 	// delete invites

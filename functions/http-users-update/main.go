@@ -4,16 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"gitlab.com/deltabyte_/littleurl/api/internal/repositories"
 )
 
 type UpdateUsersRequest struct {
@@ -27,6 +25,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		fmt.Print("Failed to initialize app")
 		panic(err)
 	}
+	rolesRepo := repositories.NewUserRolesRepository(app)
 
 	// extract the user's ID
 	currentUserId, exists := event.RequestContext.Authorizer.JWT.Claims["sub"]
@@ -72,24 +71,8 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		UserID:   userId,
 		RoleName: *reqBody.RoleName,
 	}
-	item, err := userRole.MarshalDynamoAV()
-	if err != nil {
-		return helpers.GatewayErrorResponse(500, "Failed to marshal userRole"), err
-	}
-
-	// write item to dynamo
-	_, err = app.DDBClient.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: &app.Cfg.Tables.UserRoles,
-		Item:      item,
-		// only allow updates for existing users
-		ConditionExpression: aws.String("attribute_exists(domain_id) AND attribute_exists(user_id)"),
-	})
-	if err != nil {
-		if strings.Contains(err.Error(), "ConditionalCheckFailedException") {
-			return helpers.GatewayErrorResponse(400, "You can only update existing roles"), nil
-		}
-
-		return helpers.GatewayErrorResponse(500, "Failed to write userRole to database"), err
+	if reqErr := rolesRepo.Update(ctx, userRole); reqErr != nil {
+		return reqErr.GatewayResponse(), reqErr.Err
 	}
 
 	return helpers.GatewayJsonResponse(200, nil)

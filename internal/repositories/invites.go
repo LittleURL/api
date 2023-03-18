@@ -78,7 +78,7 @@ func (repo *UserInvitesRepository) Cleanup(ctx context.Context, userInvite *enti
 		writeRequests = append(writeRequests, ddbTypes.WriteRequest{
 			DeleteRequest: &ddbTypes.DeleteRequest{
 				Key: map[string]ddbTypes.AttributeValue{
-					":id": &ddbTypes.AttributeValueMemberS{
+					"id": &ddbTypes.AttributeValueMemberS{
 						Value: invite.ID,
 					},
 				},
