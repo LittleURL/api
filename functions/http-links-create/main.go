@@ -16,9 +16,9 @@ import (
 )
 
 type CreateLinkRequest struct {
-	URI    string  `json:"uri" validate:"required,max=1024,uri,startsnotwith=_littleurl/"`
-	Target string  `json:"target" validate:"required,max=2048,url"`
-	Expiry *string `json:"target" validate:"datetime"`
+	URI       string  `json:"uri"                  validate:"required,max=1024,uri,startsnotwith=/_littleurl"`
+	Target    string  `json:"target"               validate:"required,max=2048,url"`
+	ExpiresAt *string `json:"expires_at,omitempty" validate:omitempty,datetime"`
 }
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {

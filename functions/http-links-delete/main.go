@@ -53,9 +53,13 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	}
 
 	// get roles
+	linkKeyAV, err := entities.NewLinkKey(domainId, uri).MarshalDynamoAV()
+	if err != nil {
+		return helpers.GatewayErrorResponse(500, "Failed to delete link"), err
+	}
 	_, err = app.DDBClient.DeleteItem(app.Ctx, &dynamodb.DeleteItemInput{
 		TableName: &app.Cfg.Tables.Links,
-		Key:       entities.LinkKey(domainId, uri),
+		Key:       linkKeyAV,
 	})
 	if err != nil {
 		return helpers.GatewayErrorResponse(500, "Failed to delete link"), err

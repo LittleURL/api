@@ -1,9 +1,10 @@
 package application
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -16,18 +17,32 @@ type ErrorResponseBody struct {
 
 type RequestError struct {
 	StatusCode int
-	Message string
-	Err error
+	Message    string
+	Err        error
 }
 
-func (r *RequestError) Error() string {
+func (r *RequestError) ErrorMessage() string {
 	return fmt.Sprintf("status %d: err %v", r.StatusCode, r.Err)
 }
 
+func (r *RequestError) Error() error {
+	if r.StatusCode > 0 && r.Message != "" {
+		fmt.Print(r.Err)
+		return nil
+	}
+
+	return r.Err
+}
+
 func (r *RequestError) GatewayResponse() *events.APIGatewayV2HTTPResponse {
+	if r.Message == "" {
+		r.Message = http.StatusText(r.StatusCode)
+	}
+
 	bodyBytes, _ := json.Marshal(ErrorResponseBody{
 		StatusCode: r.StatusCode,
-		Message:    r.Err.Error(),
+		Message:    r.Message,
+		Details:    r.Err,
 	})
 
 	return &events.APIGatewayV2HTTPResponse{
@@ -52,7 +67,7 @@ func NewRequestError(code int, message string, err error) *RequestError {
 
 	return &RequestError{
 		StatusCode: code,
-		Message: message,
-		Err: err,
+		Message:    message,
+		Err:        err,
 	}
 }

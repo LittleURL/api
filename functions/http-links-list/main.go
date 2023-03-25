@@ -10,14 +10,15 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	dynamodbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	"gitlab.com/deltabyte_/littleurl/api/internal/application"
 	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
 	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"gitlab.com/deltabyte_/littleurl/api/internal/pagination"
 )
 
-func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
+func Handler(ctx context.Context, event *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 	// init app
 	app, err := application.New(ctx)
 	if err != nil {
@@ -45,8 +46,8 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 
 	// base query
 	baseQueryExpression := []string{"domain_id = :domain"}
-	baseQueryValues := map[string]dynamodbTypes.AttributeValue{
-		":domain": &dynamodbTypes.AttributeValueMemberS{
+	baseQueryValues := map[string]ddbTypes.AttributeValue{
+		":domain": &ddbTypes.AttributeValueMemberS{
 			Value: domainId,
 		},
 	}
@@ -62,17 +63,50 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 
 		// update query
 		baseQueryExpression = append(baseQueryExpression, "begins_with(uri, :prefix)")
-		baseQueryValues[":prefix"] = &dynamodbTypes.AttributeValueMemberS{
+		baseQueryValues[":prefix"] = &ddbTypes.AttributeValueMemberS{
 			Value: prefix,
 		}
 	}
 
+	// sorting query(s)
+	sortDesc := pagination.ParseSortDesc(event)
+	var queryIndex *string = nil
+	switch pagination.ParseSortBy(event) {
+	case "updated":
+	case "updated_at":
+		queryIndex = aws.String("updated")
+	}
+
+	// pagination limit
+	paginationLimit, err := pagination.ParsePaginationLimit(event)
+	if err != nil {
+		return helpers.GatewayErrorResponse(500, "Failed to parse pagination limit"), err
+	}
+
+	// pagination token
+	var paginationKeys map[string]ddbTypes.AttributeValue
+	paginationKeyEntity := &entities.LinkKey{}
+	paginationTokenExists, err := pagination.ParsePaginationToken(event, paginationKeyEntity)
+	if err == nil {
+		paginationKeys, err = paginationKeyEntity.MarshalDynamoAV()
+	}
+	if err != nil {
+		return helpers.GatewayErrorResponse(500, "Failed to parse pagination token"), err
+	}
+
 	// get links
-	linksRes, err := app.DDBClient.Query(app.Ctx, &dynamodb.QueryInput{
+	queryInput := &dynamodb.QueryInput{
 		TableName:                 &app.Cfg.Tables.Links,
+		IndexName:                 queryIndex,
+		Limit:                     paginationLimit,
+		ScanIndexForward:          aws.Bool(!sortDesc),
 		KeyConditionExpression:    aws.String(strings.Join(baseQueryExpression, " AND ")),
 		ExpressionAttributeValues: baseQueryValues,
-	})
+	}
+	if paginationTokenExists {
+		queryInput.ExclusiveStartKey = paginationKeys
+	}
+	linksRes, err := app.DDBClient.Query(app.Ctx, queryInput)
 	if err != nil {
 		return helpers.GatewayErrorResponse(500, "Failed to load links"), err
 	}
@@ -83,7 +117,25 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 		return helpers.GatewayErrorResponse(500, "Failed to unmarshal links"), err
 	}
 
-	return helpers.GatewayJsonResponse(200, links)
+	// response
+	res, err := helpers.GatewayJsonResponse(200, links)
+
+	// pagination
+	if len(linksRes.LastEvaluatedKey) > 0 {
+		linkKey := &entities.LinkKey{}
+
+		// encode ddb to string
+		if err := linkKey.UnmarshalDynamoAV(linksRes.LastEvaluatedKey); err != nil {
+			return helpers.GatewayErrorResponse(500, "Failed to encode pagination token"), err
+		}
+
+		// set header
+		if err := pagination.SetPaginationToken(res, linkKey); err != nil {
+			return helpers.GatewayErrorResponse(500, "Failed to encode pagination token"), err
+		}
+	}
+
+	return res, err
 }
 
 func main() {
