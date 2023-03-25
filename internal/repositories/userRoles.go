@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -44,7 +43,7 @@ func (repo *UserRolesRepository) Create(ctx context.Context, userRole *entities.
 			return application.NewRequestError(400, "Role already exists", nil)
 		}
 
-		return application.NewRequestError(500, "Failed to create UserRole", nil)
+		return application.NewRequestError(500, "Failed to create UserRole", err)
 	}
 
 	return nil

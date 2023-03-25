@@ -59,7 +59,7 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	// get invite
 	invite, reqErr := invitesRepo.Find(ctx, inviteId)
 	if reqErr != nil {
-		return reqErr.GatewayResponse(), reqErr.Err
+		return reqErr.GatewayResponse(), reqErr.Error()
 	}
 
 	// validate invite
@@ -73,13 +73,13 @@ func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events
 	userRole.UserID = currentUserId
 	userRole.RoleName = invite.Role
 	if reqErr := rolesRepo.Create(ctx, userRole); reqErr != nil {
-		return reqErr.GatewayResponse(), reqErr.Err
+		return reqErr.GatewayResponse(), reqErr.Error()
 	}
 
 	// delete invites
 	reqErr = invitesRepo.Cleanup(ctx, invite)
 	if reqErr != nil {
-		return reqErr.GatewayResponse(), reqErr.Err
+		return reqErr.GatewayResponse(), reqErr.Error()
 	}
 
 	return helpers.GatewayJsonResponse(200, nil)

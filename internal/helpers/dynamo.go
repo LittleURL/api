@@ -1,6 +1,8 @@
 package helpers
 
-import "github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
+import (
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
+)
 
 func ChangeTrackingExpression(builder expression.Builder, userId string) expression.Builder {
 	// timestamp
