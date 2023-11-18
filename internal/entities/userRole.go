@@ -3,8 +3,8 @@ package entities
 import (
 	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"gitlab.com/deltabyte_/littleurl/api/internal/permissions"
-	"gitlab.com/deltabyte_/littleurl/api/internal/timestamp"
+	"github.com/littleurl/api/internal/permissions"
+	"github.com/littleurl/api/internal/timestamp"
 )
 
 func UserRoleKey(domainId DomainID, userId UserID) map[string]ddbTypes.AttributeValue {

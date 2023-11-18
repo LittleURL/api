@@ -8,7 +8,7 @@ import (
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"gitlab.com/deltabyte_/littleurl/api/internal/config"
+	"github.com/littleurl/api/internal/config"
 )
 
 type Application struct {

@@ -1,4 +1,4 @@
-module gitlab.com/deltabyte_/littleurl/api
+module github.com/littleurl/api
 
 go 1.18
 

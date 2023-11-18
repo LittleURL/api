@@ -54,6 +54,19 @@ resource "aws_dynamodb_table" "links" {
   }
 }
 
+
+resource "aws_dynamodb_table" "engines" {
+  name                        = "${local.prefix}engines"
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+
+  hash_key  = "id"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Auth
 # ----------------------------------------------------------------------------------------------------------------------

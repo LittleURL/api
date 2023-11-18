@@ -10,9 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/jinzhu/copier"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
-	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"github.com/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/entities"
+	"github.com/littleurl/api/internal/helpers"
 )
 
 type CreateLinkRequest struct {

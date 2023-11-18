@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/application"
 )
 
 func GatewayJsonResponse(code int, body interface{}) (*events.APIGatewayV2HTTPResponse, error) {

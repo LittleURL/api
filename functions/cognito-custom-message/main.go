@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/config"
-	"gitlab.com/deltabyte_/littleurl/api/internal/templates"
+	"github.com/littleurl/api/internal/config"
+	"github.com/littleurl/api/internal/templates"
 )
 
 type templateAttributes struct {

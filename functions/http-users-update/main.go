@@ -8,10 +8,10 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
-	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
-	"gitlab.com/deltabyte_/littleurl/api/internal/repositories"
+	"github.com/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/entities"
+	"github.com/littleurl/api/internal/helpers"
+	"github.com/littleurl/api/internal/repositories"
 )
 
 type UpdateUsersRequest struct {

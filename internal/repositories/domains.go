@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
+	"github.com/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/entities"
 )
 
 type DomainsRepository struct {

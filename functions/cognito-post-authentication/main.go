@@ -14,8 +14,8 @@ import (
 	cognito "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	cognitoTypes "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
+	"github.com/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/helpers"
 )
 
 func gravatarUrl(email string) string {

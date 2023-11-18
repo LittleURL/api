@@ -9,10 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	cognito "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	lumigo "github.com/lumigo-io/lumigo-go-tracer"
-	"gitlab.com/deltabyte_/littleurl/api/internal/application"
-	"gitlab.com/deltabyte_/littleurl/api/internal/entities"
-	"gitlab.com/deltabyte_/littleurl/api/internal/helpers"
-	"gitlab.com/deltabyte_/littleurl/api/internal/repositories"
+	"github.com/littleurl/api/internal/application"
+	"github.com/littleurl/api/internal/entities"
+	"github.com/littleurl/api/internal/helpers"
+	"github.com/littleurl/api/internal/repositories"
 )
 
 func Handler(ctx context.Context, event events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {

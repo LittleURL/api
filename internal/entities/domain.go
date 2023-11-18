@@ -4,7 +4,7 @@ import (
 	av "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	ddbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
-	"gitlab.com/deltabyte_/littleurl/api/internal/timestamp"
+	"github.com/littleurl/api/internal/timestamp"
 )
 
 type DomainID = string
@@ -13,18 +13,24 @@ type DomainID = string
  * entity
  */
 type Domain struct {
-	Id            DomainID            `json:"id"                       dynamodbav:"id"`
-	Domain        string              `json:"domain"                   dynamodbav:"domain"`
-	Description   *string             `json:"description,omitempty"    dynamodbav:"description,omitempty"`
-	DefaultTarget *string             `json:"default_target,omitempty" dynamodbav:"default_target,omitempty"`
-	CreatedAt     timestamp.Timestamp `json:"created_at"               dynamodbav:"created_at"`
-	UpdatedAt     timestamp.Timestamp `json:"updated_at"               dynamodbav:"updated_at"`
-	UserRole      string              `json:"user_role,omitempty"      dynamodbav:"-"` // not stored in dynamo
+	// core data
+	Id            DomainID `json:"id"                       dynamodbav:"id"`
+	Domain        string   `json:"domain"                   dynamodbav:"domain"`
+	Description   *string  `json:"description,omitempty"    dynamodbav:"description,omitempty"`
+	DefaultTarget *string  `json:"default_target,omitempty" dynamodbav:"default_target,omitempty"`
+
+	// engine config
+	Engine EngineConfig `json:"engine" dynamodbav:"engine"`
+
+	// meta
+	CreatedAt timestamp.Timestamp `json:"created_at"               dynamodbav:"created_at"`
+	UpdatedAt timestamp.Timestamp `json:"updated_at"               dynamodbav:"updated_at"`
+	UserRole  string              `json:"user_role,omitempty"      dynamodbav:"-"` // not stored in dynamo
 }
 
 func NewDomain() *Domain {
 	return &Domain{
-		Id: uuid.NewString(),
+		Id:        uuid.NewString(),
 		CreatedAt: timestamp.Now(),
 		UpdatedAt: timestamp.Now(),
 	}
