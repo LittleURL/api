@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.9.7
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.4.13
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.15.9
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.4.0
 	github.com/jinzhu/configor v1.2.1
 	github.com/lumigo-io/lumigo-go-tracer v0.4.1
 	go.uber.org/zap v1.21.0
